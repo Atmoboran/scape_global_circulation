@@ -324,10 +324,12 @@
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var W = 0, H = 0;
 
-  // ============ LAYOUT (domain: x in [-1,1] equator..pole, y in [0,1] surface..lid) ============
-  var groundYFrac = 0.80;
-  var groundY = 0, atmoTop = 0, atmoH = 0;
-  var sunR = 14;
+  // ============ LAYOUT — a pseudo-3D globe (plain 2D canvas, orthographic projection, no
+  // WebGL / no libraries). Rotation axis is vertical (poles at top/bottom of the disc), so a
+  // circle of constant latitude phi projects to a horizontal chord at y = cy - hemi*R*sin(phi),
+  // spanning x in [cx - R*cos(phi), cx + R*cos(phi)] on the visible (front) hemisphere. That
+  // one formula (sphereXY below) is the only projection math the whole scene needs. ============
+  var cx = 0, cy = 0, R = 0, TUBE_W = 0, sunR = 14;
 
   function layout() {
     var rect = stage.getBoundingClientRect();
@@ -337,18 +339,21 @@
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    groundY = H * groundYFrac;
-    atmoTop = H * 0.10;
-    atmoH = groundY - atmoTop;
-
-    sunR = Math.max(11, W * 0.032);
+    cx = W * 0.5;
+    cy = H * 0.44;
+    R = W * 0.27;
+    TUBE_W = R * 0.32;
+    sunR = Math.max(10, W * 0.030);
   }
 
-  function domainToPx(x, y) {
-    return {
-      x: (x + 1) / 2 * W,
-      y: groundY - y * atmoH
-    };
+  // phiDeg: latitude 0..90. hemi: +1 north (up) / -1 south (down). side: +1 right limb / -1
+  // left limb. offset: radial distance bulging outward from the sphere's silhouette (0 = right
+  // on the sphere's edge, >0 = the flow "tube" floating just outside it).
+  function sphereXY(phiDeg, hemi, side, offset) {
+    var rad = phiDeg * Math.PI / 180;
+    var edgeX = R * Math.cos(rad);
+    var edgeY = R * Math.sin(rad);
+    return { x: cx + side * (edgeX + offset), y: cy - hemi * edgeY };
   }
 
   // ============ STORY CLOCK ============
@@ -365,54 +370,125 @@
   var aEff = 0;
   var rEff = 0;
 
+  // ============ COLOR HELPERS ============
+  function hexToRgb(hex) {
+    var v = parseInt(hex.slice(1), 16);
+    return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+  }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function lerpColor(c1, c2, t) {
+    t = Math.min(1, Math.max(0, t));
+    return 'rgb(' + Math.round(lerp(c1.r, c2.r, t)) + ',' + Math.round(lerp(c1.g, c2.g, t)) + ',' + Math.round(lerp(c1.b, c2.b, t)) + ')';
+  }
+  function clamp01(v) { return Math.min(1, Math.max(0, v)); }
+  function gate(v, lo, hi) { return clamp01((v - lo) / (hi - lo)); }
+  function smoothstep(x) { x = clamp01(x); return x * x * (3 - 2 * x); }
+
+  var COL_CREAM = hexToRgb('#f2e2c0');
+  var COL_SKY_NEUTRAL = hexToRgb('#f5f0e3');
+  var COL_SKY_DAY = hexToRgb('#eaf6fb');
+  var ZONE_TROPICAL = hexToRgb('#ef8f2c');
+  var ZONE_TEMPERATE = hexToRgb('#4ab48a');
+  var ZONE_ICE = hexToRgb('#eaf6fb');
+
+  // ============ CELL / TUBE MODEL ============
+  // Each "tube" is the meridional circulation loop for one latitude band, one hemisphere, one
+  // limb (left/right) — drawn as a ribbon hugging the sphere's edge and bulging outward, the
+  // same visual language as a textbook 3-cell globe diagram. sense=+1 is a *direct* cell
+  // (surface flow equatorward, aloft poleward — Hadley's original single-cell idea, and also
+  // true of the real Hadley and Polar cells); sense=-1 is the *indirect* Ferrel cell, running
+  // the opposite way, sandwiched between the two direct ones. These senses, and which latitude
+  // band is rising vs. sinking, were derived analytically and cross-checked against a Python
+  // streamplot before being carried over from the flat first version of this simulation.
+  var HEMIS = [1, -1];
+  var SIDES = [1, -1];
+  var SINGLE_BANDS = [{ lo: 0, hi: 90, sense: 1, color: '#ef8f2c' }];
+  var THREE_BANDS = [
+    { lo: 0, hi: 30, sense: 1, color: '#c65a2a', label: 'PASSAT' },
+    { lo: 30, hi: 60, sense: -1, color: '#1093c4', label: 'WESTWIND' },
+    { lo: 60, hi: 90, sense: 1, color: '#28348f', label: 'OSTWIND' }
+  ];
+
+  function buildTubeConfigs(bands) {
+    var cfgs = [];
+    for (var b = 0; b < bands.length; b++) {
+      for (var h = 0; h < HEMIS.length; h++) {
+        for (var s = 0; s < SIDES.length; s++) {
+          cfgs.push({ lo: bands[b].lo, hi: bands[b].hi, sense: bands[b].sense, hemi: HEMIS[h], side: SIDES[s], color: bands[b].color });
+        }
+      }
+    }
+    return cfgs;
+  }
+  var singleTubeCfgs = buildTubeConfigs(SINGLE_BANDS); // 1 band x 2 hemi x 2 sides = 4 tubes
+  var threeTubeCfgs = buildTubeConfigs(THREE_BANDS);   // 3 bands x 2 hemi x 2 sides = 12 tubes
+
+  function tubeBoundaryPoints(cfg) {
+    var N = 10, pts = [];
+    for (var i = 0; i <= N; i++) pts.push(sphereXY(lerp(cfg.lo, cfg.hi, i / N), cfg.hemi, cfg.side, 0));
+    for (var i = 0; i <= N; i++) pts.push(sphereXY(lerp(cfg.hi, cfg.lo, i / N), cfg.hemi, cfg.side, TUBE_W));
+    return pts;
+  }
+
+  // Radial offset as a function of loop-parameter s in [0,1): sits at the inner edge (surface,
+  // offset=0) through the first half, ramps smoothly out to the outer edge (aloft, offset=
+  // TUBE_W) right at the end of that half, stays there through the second half, then ramps
+  // smoothly back down right at the wrap — so a particle glides through both "caps" instead of
+  // teleporting across the tube's width.
+  function tubeOffsetAtS(s) {
+    var TWID = 0.08;
+    if (s < 0.5) {
+      if (s > 0.5 - TWID) return TUBE_W * smoothstep((s - (0.5 - TWID)) / TWID);
+      return 0;
+    }
+    if (s > 1 - TWID) return TUBE_W * (1 - smoothstep((s - (1 - TWID)) / TWID));
+    return TUBE_W;
+  }
+
+  function tubePointAtS(cfg, s, jitter) {
+    var half = s < 0.5;
+    var t = half ? s * 2 : (s - 0.5) * 2;
+    var equatorward = cfg.sense > 0 ? half : !half;
+    var phi = equatorward ? lerp(cfg.hi, cfg.lo, t) : lerp(cfg.lo, cfg.hi, t);
+    var offset = tubeOffsetAtS(s) + jitter * TUBE_W * 0.5;
+    offset = Math.max(1, Math.min(TUBE_W - 1, offset));
+    return sphereXY(phi, cfg.hemi, cfg.side, offset);
+  }
+
   // ============ PARTICLES ============
-  var N_PART = 240;
-  var particles = [];
-  function spawnParticle(p) {
-    p = p || {};
-    p.x = (Math.random() * 2 - 1);
-    p.y = Math.random();
-    p.px = p.x; p.py = p.y;
-    return p;
+  // Two pools — one cycling in the single big tubes, one in the three-cell tubes — both always
+  // animating; only their *drawn alpha* crossfades as rEff ramps, which is a much simpler (and
+  // just as smooth) way to dissolve from one cell structure into the other than morphing paths.
+  var PER_TUBE_SINGLE = 12, PER_TUBE_THREE = 8, SPEED = 0.11;
+
+  function makePool(cfgs, perTube) {
+    var pool = [];
+    for (var i = 0; i < cfgs.length; i++) {
+      for (var j = 0; j < perTube; j++) {
+        pool.push({ tubeIdx: i, s: Math.random(), jitter: (Math.random() * 2 - 1) * 0.5, x: 0, y: 0, px: 0, py: 0, inited: false });
+      }
+    }
+    return pool;
   }
-  function initParticles() {
-    particles = [];
-    for (var i = 0; i < N_PART; i++) particles.push(spawnParticle());
+  var poolSingle = makePool(singleTubeCfgs, PER_TUBE_SINGLE);
+  var poolThree = makePool(threeTubeCfgs, PER_TUBE_THREE);
+
+  function resetPools() {
+    [[poolSingle, singleTubeCfgs], [poolThree, threeTubeCfgs]].forEach(function (pair) {
+      pair[0].forEach(function (p) { p.s = Math.random(); p.inited = false; });
+    });
   }
-  initParticles();
 
-  var K = 0.09;
-  var JITTER = 0.22;
-
-  // Streamfunction psi = (1-rEff)*psi1 + rEff*psi3, blended from two divergence-free,
-  // mass-conserving pieces (linear combinations of streamfunctions are themselves valid
-  // streamfunctions, so the blend never leaks or piles up mass):
-  //   psi1 — one single loop spanning the whole equator..pole domain (Hadley's original
-  //          1735 idea: rises at the equator, sinks at the pole).
-  //   psi3 — three loops of equal width (0-30-60-90 deg), alternating rotational sense:
-  //          Hadley (direct) / Ferrel (indirect, reversed) / Polar (direct), which is the
-  //          textbook three-cell structure that Earth's rotation actually produces.
-  // Verified analytically and against a streamplot before wiring this into the animation.
-  function fieldAt(x, y) {
-    var zeta = (x + 1) / 2; // 0 = equator, 1 = pole
-
-    var u1 = -Math.PI * Math.sin(Math.PI * zeta) * Math.cos(Math.PI * y);
-    var w1 = (Math.PI / 2) * Math.cos(Math.PI * zeta) * Math.sin(Math.PI * y);
-
-    var k = Math.min(2, Math.floor(zeta * 3));
-    var l = zeta * 3 - k;
-    var phi = Math.PI * l;
-    var sign = (k === 1) ? -1 : 1;
-    var s = (k === 0) ? 1.0 : (k === 1 ? 0.65 : 0.45);
-    var f = sign * s * Math.sin(phi);
-    var fCos = sign * s * Math.cos(phi);
-    var u3 = -Math.PI * f * Math.cos(Math.PI * y);
-    var w3 = (3 * Math.PI / 2) * fCos * Math.sin(Math.PI * y);
-
-    var u = (1 - rEff) * u1 + rEff * u3;
-    var w = (1 - rEff) * w1 + rEff * w3;
-
-    return { u: aEff * K * u, w: aEff * K * w };
+  function advancePool(pool, cfgs, dt) {
+    for (var i = 0; i < pool.length; i++) {
+      var p = pool[i];
+      var cfg = cfgs[p.tubeIdx];
+      p.s += SPEED * aEff * dt;
+      if (p.s >= 1) p.s -= 1;
+      var pos = tubePointAtS(cfg, p.s, p.jitter);
+      if (!p.inited) { p.px = pos.x; p.py = pos.y; p.inited = true; } else { p.px = p.x; p.py = p.y; }
+      p.x = pos.x; p.y = pos.y;
+    }
   }
 
   // ============ SIM STATE ============
@@ -426,205 +502,169 @@
     var rTarget = storyT > R_START ? 1 : 0;
     rEff += (rTarget - rEff) * Math.min(1, dt / TAU_R);
 
-    for (var i = 0; i < particles.length; i++) {
-      var p = particles[i];
-      p.px = p.x; p.py = p.y;
-      var f = fieldAt(p.x, p.y);
-
-      p.x += f.u * dt;
-      p.y += f.w * dt;
-      p.x += (Math.random() * 2 - 1) * JITTER * dt;
-      p.y += (Math.random() * 2 - 1) * JITTER * 0.6 * dt;
-
-      if (p.x < -1.12 || p.x > 1.12 || p.y < -0.05 || p.y > 1.08) {
-        spawnParticle(p);
-      } else {
-        if (p.y < 0.01) p.y = 0.01;
-        if (p.y > 1.0) p.y = 1.0;
-      }
-    }
-  }
-
-  // ============ COLOR HELPERS ============
-  function hexToRgb(hex) {
-    var v = parseInt(hex.slice(1), 16);
-    return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
-  }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function lerpColor(c1, c2, t) {
-    t = Math.min(1, Math.max(0, t));
-    return 'rgb(' + Math.round(lerp(c1.r, c2.r, t)) + ',' + Math.round(lerp(c1.g, c2.g, t)) + ',' + Math.round(lerp(c1.b, c2.b, t)) + ')';
-  }
-  function clamp01(v) { return Math.min(1, Math.max(0, v)); }
-  function gate(v, lo, hi) { return clamp01((v - lo) / (hi - lo)); }
-
-  var COL_CREAM = hexToRgb('#f2e2c0');
-  var COL_SKY_NEUTRAL = hexToRgb('#f5f0e3');
-  var COL_SKY_DAY = hexToRgb('#eaf6fb');
-
-  // Ground colour runs from equator to pole through the real climate zones that this very
-  // circulation pattern produces: tropical, subtropical desert (sinking, dry air under the
-  // 30 deg high), temperate, subpolar, polar. The desert/temperate/subpolar stops only fade
-  // in with rEff, since they only exist once the three-cell structure has actually formed.
-  var ZONE_TROPICAL = hexToRgb('#ef8f2c');
-  var ZONE_DESERT = hexToRgb('#d2a716');
-  var ZONE_TEMPERATE = hexToRgb('#4ab48a');
-  var ZONE_SUBPOLAR = hexToRgb('#7fa9c9');
-  var ZONE_ICE = hexToRgb('#eaf6fb');
-
-  function groundGradient() {
-    var g = ctx.createLinearGradient(0, 0, W, 0);
-    var rGate = gate(rEff, 0.05, 0.55);
-    g.addColorStop(0, lerpColor(COL_CREAM, ZONE_TROPICAL, aEff));
-    g.addColorStop(0.30, lerpColor(COL_CREAM, ZONE_TROPICAL, aEff * (1 - rGate * 0.5)));
-    g.addColorStop(0.3333, lerpColor(COL_CREAM, ZONE_DESERT, aEff * rGate));
-    g.addColorStop(0.5, lerpColor(COL_CREAM, ZONE_TEMPERATE, aEff * rGate));
-    g.addColorStop(0.6667, lerpColor(COL_CREAM, ZONE_SUBPOLAR, aEff * rGate));
-    g.addColorStop(1, lerpColor(COL_CREAM, ZONE_ICE, aEff));
-    return g;
+    advancePool(poolSingle, singleTubeCfgs, dt);
+    advancePool(poolThree, threeTubeCfgs, dt);
   }
 
   // ============ RENDER ============
-  function render() {
-    ctx.fillStyle = lerpColor(COL_SKY_NEUTRAL, COL_SKY_DAY, aEff);
-    ctx.fillRect(0, 0, W, H);
+  function faceGradient() {
+    var g = ctx.createLinearGradient(0, cy - R, 0, cy + R);
+    var zones = [{ lo: 60, hi: 90, color: ZONE_ICE }, { lo: 30, hi: 60, color: ZONE_TEMPERATE }, { lo: 0, hi: 30, color: ZONE_TROPICAL }];
+    function frac(phi, hemi) { return 0.5 - hemi * Math.sin(phi * Math.PI / 180) * 0.5; }
+    [1, -1].forEach(function (hemi) {
+      zones.forEach(function (z) {
+        var c = lerpColor(COL_CREAM, z.color, aEff);
+        var f1 = hemi > 0 ? frac(z.hi, hemi) : frac(z.lo, hemi);
+        var f2 = hemi > 0 ? frac(z.lo, hemi) : frac(z.hi, hemi);
+        g.addColorStop(clamp01(f1), c);
+        g.addColorStop(clamp01(f2), c);
+      });
+    });
+    return g;
+  }
 
-    ctx.fillStyle = groundGradient();
-    ctx.fillRect(0, groundY, W, H - groundY);
+  function drawSphereFace() {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.fillStyle = faceGradient();
+    ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
 
+    var vg = ctx.createRadialGradient(cx - R * 0.32, cy - R * 0.35, R * 0.15, cx, cy, R * 1.05);
+    vg.addColorStop(0, 'rgba(255,255,255,0.20)');
+    vg.addColorStop(0.6, 'rgba(255,255,255,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.22)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
+    ctx.restore();
+  }
+
+  function drawSphereOutline() {
     ctx.strokeStyle = '#111111';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(0, groundY);
-    ctx.lineTo(W, groundY);
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.stroke();
 
-    drawLatitudeTicks();
-    drawSun();
-
-    ctx.font = '700 10px Archivo, sans-serif';
-    ctx.fillStyle = 'rgba(17,17,17,0.55)';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText('ÄQUATOR', W * 0.06, H - 10);
-    ctx.textAlign = 'right';
-    ctx.fillText('POL', W * 0.94, H - 10);
-    ctx.textAlign = 'left';
-
-    // particles: plain white with a thin ink edge so they read against every ground colour
-    ctx.lineCap = 'round';
-    for (var i = 0; i < particles.length; i++) {
-      var p = particles[i];
-      var a = domainToPx(p.px, p.py);
-      var b = domainToPx(p.x, p.y);
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-      ctx.lineWidth = 1.4;
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = 'rgba(17,17,17,0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    }
-
-    drawWindBelts();
-    drawPressureBadges();
-
-    ctx.font = '800 11px Archivo, sans-serif';
-    ctx.fillStyle = 'rgba(17,17,17,0.7)';
-    ctx.textAlign = 'right';
-    ctx.fillText('Rotation ' + Math.round(rEff * 100) + ' %', W * 0.94, atmoTop * 0.62);
-    ctx.textAlign = 'left';
+    var alpha = gate(rEff, 0.04, 0.35);
+    if (alpha < 0.01) return;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.strokeStyle = 'rgba(17,17,17,0.4)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([1, 5]);
+    ctx.beginPath();
+    ctx.moveTo(cx - R, cy);
+    ctx.lineTo(cx + R, cy);
+    ctx.stroke();
+    [30, 60].forEach(function (latDeg) {
+      [1, -1].forEach(function (hemi) {
+        var y = cy - hemi * R * Math.sin(latDeg * Math.PI / 180);
+        var half = R * Math.cos(latDeg * Math.PI / 180);
+        ctx.beginPath();
+        ctx.moveTo(cx - half, y);
+        ctx.lineTo(cx + half, y);
+        ctx.stroke();
+      });
+    });
+    ctx.setLineDash([]);
+    ctx.restore();
   }
 
-  // Two beams from one sun: a short, bright, steep beam onto a narrow patch at the equator,
-  // and a long, faint, shallow beam spread across a wide patch toward the pole. Same amount
-  // of light, spread over a much bigger area at low sun angle — this is *why* the equator
-  // ends up so much warmer than the poles, drawn rather than just asserted.
+  // One sun, two beams: a short, bright, steep beam onto the equator, a long, faint, shallow
+  // one grazing toward the pole. Same amount of light, spread over a much bigger area at low
+  // sun angle — this is *why* the equator ends up so much warmer, drawn rather than asserted.
   function drawSun() {
     if (aEff < 0.02) return;
-    var sunPx = { x: W * 0.24, y: atmoTop * 0.55 };
-
-    var eqNear = domainToPx(-1.0, 0);
-    var eqFar = domainToPx(-0.76, 0);
-    var poleNear = domainToPx(0.42, 0);
-    var poleFar = domainToPx(1.0, 0);
+    var sunPx = { x: cx - R * 1.3, y: cy - R * 1.05 };
+    var eqTarget = { x: cx - R * 0.35, y: cy + R * 0.02 };
+    var poleTarget = { x: cx - R * 0.05, y: cy - R * 0.92 };
 
     ctx.save();
     ctx.globalAlpha = aEff;
 
-    ctx.fillStyle = 'rgba(255,228,0,0.10)';
-    ctx.beginPath();
-    ctx.moveTo(sunPx.x, sunPx.y);
-    ctx.lineTo(poleNear.x, poleNear.y);
-    ctx.lineTo(poleFar.x, poleFar.y);
-    ctx.closePath();
-    ctx.fill();
+    ctx.strokeStyle = 'rgba(239,143,44,0.60)';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(sunPx.x, sunPx.y); ctx.lineTo(eqTarget.x, eqTarget.y); ctx.stroke();
 
-    ctx.fillStyle = 'rgba(255,228,0,0.38)';
-    ctx.beginPath();
-    ctx.moveTo(sunPx.x, sunPx.y);
-    ctx.lineTo(eqNear.x, eqNear.y);
-    ctx.lineTo(eqFar.x, eqFar.y);
-    ctx.closePath();
-    ctx.fill();
+    ctx.strokeStyle = 'rgba(239,143,44,0.20)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(sunPx.x, sunPx.y); ctx.lineTo(poleTarget.x, poleTarget.y); ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(239,143,44,0.55)';
-    ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    ctx.moveTo(sunPx.x, sunPx.y);
-    ctx.lineTo((eqNear.x + eqFar.x) / 2, eqNear.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(sunPx.x, sunPx.y);
-    ctx.lineTo((poleNear.x + poleFar.x) / 2, poleNear.y);
-    ctx.stroke();
+    var g1 = ctx.createRadialGradient(eqTarget.x, eqTarget.y, 1, eqTarget.x, eqTarget.y, R * 0.22);
+    g1.addColorStop(0, 'rgba(255,228,0,0.45)');
+    g1.addColorStop(1, 'rgba(255,228,0,0)');
+    ctx.fillStyle = g1;
+    ctx.beginPath(); ctx.arc(eqTarget.x, eqTarget.y, R * 0.22, 0, Math.PI * 2); ctx.fill();
+
+    var g2 = ctx.createRadialGradient(poleTarget.x, poleTarget.y, 1, poleTarget.x, poleTarget.y, R * 0.4);
+    g2.addColorStop(0, 'rgba(255,228,0,0.12)');
+    g2.addColorStop(1, 'rgba(255,228,0,0)');
+    ctx.fillStyle = g2;
+    ctx.beginPath(); ctx.arc(poleTarget.x, poleTarget.y, R * 0.4, 0, Math.PI * 2); ctx.fill();
 
     var grad = ctx.createRadialGradient(sunPx.x, sunPx.y, 2, sunPx.x, sunPx.y, sunR * 1.8);
     grad.addColorStop(0, 'rgba(255,228,0,0.4)');
     grad.addColorStop(1, 'rgba(255,228,0,0)');
     ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(sunPx.x, sunPx.y, sunR * 1.8, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(sunPx.x, sunPx.y, sunR * 1.8, 0, Math.PI * 2); ctx.fill();
 
     ctx.fillStyle = '#ffe400';
     ctx.strokeStyle = '#111111';
     ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(sunPx.x, sunPx.y, sunR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(sunPx.x, sunPx.y, sunR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
     ctx.restore();
   }
 
-  function drawLatitudeTicks() {
-    var alpha = gate(rEff, 0.04, 0.35);
+  function drawOneTube(cfg, alpha) {
+    if (alpha < 0.01) return;
+    var pts = tubeBoundaryPoints(cfg);
+    var rgb = hexToRgb(cfg.color);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.30)';
+    ctx.fill();
+    ctx.strokeStyle = '#111111';
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+    ctx.restore();
+  }
+  function drawTubeSet(cfgs, alpha) {
+    if (alpha < 0.01) return;
+    for (var i = 0; i < cfgs.length; i++) drawOneTube(cfgs[i], alpha);
+  }
+
+  function drawParticlePool(pool, alpha) {
     if (alpha < 0.01) return;
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.strokeStyle = 'rgba(17,17,17,0.35)';
-    ctx.lineWidth = 1.4;
-    ctx.setLineDash([1, 6]);
-    ctx.font = '700 9px Archivo, sans-serif';
-    ctx.fillStyle = 'rgba(17,17,17,0.55)';
-    ctx.textAlign = 'center';
-    [[-1 / 3, '30°'], [1 / 3, '60°']].forEach(function (t) {
-      var top = domainToPx(t[0], 1);
-      var bot = domainToPx(t[0], 0);
+    ctx.lineCap = 'round';
+    for (var i = 0; i < pool.length; i++) {
+      var p = pool[i];
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = 1.3;
       ctx.beginPath();
-      ctx.moveTo(top.x, top.y);
-      ctx.lineTo(bot.x, bot.y);
+      ctx.moveTo(p.px, p.py);
+      ctx.lineTo(p.x, p.y);
       ctx.stroke();
-      ctx.fillText(t[1], top.x, top.y + 12);
-    });
-    ctx.setLineDash([]);
-    ctx.textAlign = 'left';
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = 'rgba(17,17,17,0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
@@ -661,70 +701,77 @@
     var outer = gate(aEff, 0.10, 0.35);
     var rGate = gate(rEff, 0.12, 0.5);
     var inner = outer * rGate;
-    var y = domainToPx(0, 0.34).y;
+    var x = cx;
 
-    drawBadge(domainToPx(-1, 0.34).x, y, 'T', '#df2a1e', outer, 'ITCZ');
-    drawBadge(domainToPx(-1 / 3, 0.34).x, y, 'H', '#28348f', inner, 'Subtropen');
-    drawBadge(domainToPx(1 / 3, 0.34).x, y, 'T', '#df2a1e', inner, 'Subpolar');
-    drawBadge(domainToPx(1, 0.34).x, y, 'H', '#28348f', outer, 'Polarhoch');
+    drawBadge(x, cy, 'T', '#df2a1e', outer, 'ITCZ');
+    drawBadge(x, cy - R * Math.sin(30 * Math.PI / 180), 'H', '#28348f', inner, 'Subtropen');
+    drawBadge(x, cy - R * Math.sin(60 * Math.PI / 180), 'T', '#df2a1e', inner, 'Subpolar');
+    drawBadge(x, cy - R, 'H', '#28348f', outer, 'Polarhoch');
   }
 
-  // ============ WIND BELTS ============
-  // Small direction arrows for the *real* near-surface wind in each band: the meridional
-  // sense (equatorward for Hadley/Polar, poleward for Ferrel) comes straight out of the
-  // physics above; the diagonal tilt is a symbolic nod to the Coriolis-deflected, zonal
-  // (east/west) component that a flat latitude-vs-height cross-section can't show directly
-  // — trade winds and polar easterlies both blow from the east, the westerlies from the west.
-  function drawBeltArrow(cx, cy, dirX, dirY, color, alpha) {
-    var len = Math.max(14, W * 0.05);
-    var nx = dirX, ny = dirY;
-    var tx = cx - nx * len * 0.5, ty = cy - ny * len * 0.5;
-    var hx = cx + nx * len * 0.5, hy = cy + ny * len * 0.5;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2.4;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(tx, ty);
-    ctx.lineTo(hx, hy);
-    ctx.stroke();
-
-    var ang = Math.atan2(ny, nx);
-    var headLen = len * 0.4;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(hx, hy);
-    ctx.lineTo(hx - headLen * Math.cos(ang - 0.5), hy - headLen * Math.sin(ang - 0.5));
-    ctx.lineTo(hx - headLen * Math.cos(ang + 0.5), hy - headLen * Math.sin(ang + 0.5));
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawWindBelts() {
+  // ============ LEGEND + LABELS ============
+  function drawLegend() {
     var alpha = gate(rEff, 0.18, 0.6);
     if (alpha < 0.01) return;
-    var yArrow = domainToPx(0, 0.14).y;
-    var yLabel = domainToPx(0, 0.02).y;
-
-    var belts = [
-      { zeta: 1 / 6, dx: -0.8, dy: 0.5, color: '#c65a2a', label: 'PASSAT' },
-      { zeta: 0.5, dx: 0.8, dy: -0.5, color: '#1093c4', label: 'WESTWIND' },
-      { zeta: 5 / 6, dx: -0.8, dy: 0.5, color: '#28348f', label: 'OSTWIND' }
-    ];
-
+    var items = [{ color: '#c65a2a', label: 'PASSAT' }, { color: '#1093c4', label: 'WESTWIND' }, { color: '#28348f', label: 'OSTWIND' }];
+    var xs = [W * 0.17, W * 0.5, W * 0.83];
+    var y = H - 14;
     ctx.save();
-    ctx.font = '800 8.5px Archivo, sans-serif';
-    ctx.textAlign = 'center';
-    for (var i = 0; i < belts.length; i++) {
-      var bx = domainToPx(belts[i].zeta * 2 - 1, 0.14).x;
-      drawBeltArrow(bx, yArrow, belts[i].dx, belts[i].dy, belts[i].color, alpha);
-      ctx.globalAlpha = alpha;
+    ctx.globalAlpha = alpha;
+    ctx.font = '800 9px Archivo, sans-serif';
+    ctx.textAlign = 'left';
+    for (var i = 0; i < items.length; i++) {
+      ctx.fillStyle = items[i].color;
+      ctx.beginPath();
+      ctx.arc(xs[i] - 24, y - 3, 4, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#111111';
-      ctx.fillText(belts[i].label, bx, yLabel);
+      ctx.fillText(items[i].label, xs[i] - 16, y);
     }
     ctx.restore();
+  }
+
+  function drawAxisLabels() {
+    ctx.save();
+    ctx.font = '700 10px Archivo, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+    ctx.fillStyle = 'rgba(17,17,17,0.6)';
+    ctx.strokeText('POL', cx, cy - R - 12);
+    ctx.fillText('POL', cx, cy - R - 12);
+    ctx.strokeText('ÄQUATOR', cx, cy - 8);
+    ctx.fillText('ÄQUATOR', cx, cy - 8);
+    ctx.restore();
+    ctx.textAlign = 'left';
+  }
+
+  function render() {
+    ctx.fillStyle = lerpColor(COL_SKY_NEUTRAL, COL_SKY_DAY, aEff);
+    ctx.fillRect(0, 0, W, H);
+
+    drawSphereFace();
+    drawSphereOutline();
+    drawSun();
+
+    var baseAlpha = gate(aEff, 0.10, 0.35);
+    var rGate = gate(rEff, 0.15, 0.65);
+    var singleAlpha = baseAlpha * (1 - rGate);
+    var threeAlpha = baseAlpha * rGate;
+
+    drawTubeSet(singleTubeCfgs, singleAlpha);
+    drawTubeSet(threeTubeCfgs, threeAlpha);
+    drawParticlePool(poolSingle, singleAlpha);
+    drawParticlePool(poolThree, threeAlpha);
+
+    drawPressureBadges();
+    drawLegend();
+    drawAxisLabels();
+
+    ctx.font = '800 11px Archivo, sans-serif';
+    ctx.fillStyle = 'rgba(17,17,17,0.7)';
+    ctx.textAlign = 'right';
+    ctx.fillText('Rotation ' + Math.round(rEff * 100) + ' %', W * 0.94, H * 0.045);
     ctx.textAlign = 'left';
   }
 
@@ -802,7 +849,7 @@
     aEff = 0;
     rEff = 0;
     lastPhase = '';
-    initParticles();
+    resetPools();
     updatePrimaryButton();
   });
 
