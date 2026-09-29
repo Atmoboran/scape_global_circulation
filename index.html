@@ -2,9 +2,9 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>SCAPE&deg; &mdash; Die Windg&uuml;rtel der Erde</title>
-<meta name="description" content="Warum weht der Passat immer aus derselben Richtung? Starte die Simulation und beobachte, wie ungleiche Erw&auml;rmung von &Auml;quator und Polen &mdash; zusammen mit der Erdrotation &mdash; die drei gro&szlig;en Zirkulationszellen und Windg&uuml;rtel der Erde entstehen l&auml;sst. Ein SCAPE&deg;-Projekt." />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SCAPE° – Die Windgürtel der Erde</title>
+<meta name="description" content="Drei Experimente, die zeigen, wie die großen Winde der Erde entstehen: ungleiche Erwärmung durch die Sonne, die Corioliskraft und die globale Zirkulation mit Passat, Westwinden und Polaren Ostwinden. Ein SCAPE°-Projekt." />
 <meta name="theme-color" content="#f2e2c0" />
 <script>
   (function () {
@@ -22,207 +22,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#111111;
-    --paper:#ffffff;
-    --line:#111111;
-
-    /* SCAPE&deg; palette, sampled from the corporate identity guide */
-    --olive:#6b6b23;
-    --mustard:#d2a716;
-    --orange:#ef8f2c;
-    --rust:#c65a2a;
-    --red:#df2a1e;
-    --purple:#4a2e83;
-    --green:#00954f;
-    --cyan:#1093c4;
-    --navy:#28348f;
-
-    --cream:#f2e2c0;
-    --pastel-yellow:#f6ea79;
-    --bright-yellow:#ffe400;
-    --pastel-blue:#cfe6f6;
-    --pastel-lavender:#dcd6f2;
-    --mint:#4ab48a;
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{
-    margin:0; padding:0; min-height:100%;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Archivo', 'Helvetica Neue', Arial, sans-serif;
-    overscroll-behavior-y:none;
-  }
-  h1,h2,h3{font-family:inherit;}
-  img,svg{max-width:100%;}
-
-  .wrap{ max-width:600px; margin:0 auto; }
-
-  /* ============ WORDMARK / TOPBAR ============ */
-  .topbar{
-    display:flex; align-items:flex-end; justify-content:space-between;
-    padding:22px 20px 14px;
-  }
-  .wordmark .word{
-    display:block; font-size:26px; font-weight:800; letter-spacing:-.01em; line-height:1;
-  }
-  .wordmark .sub{
-    display:block; margin-top:4px; font-size:10px; font-weight:700;
-    letter-spacing:.14em; text-transform:uppercase;
-  }
-  .topbar-right{
-    display:flex; flex-direction:column; align-items:flex-end; gap:8px;
-  }
-  #view-toggle{
-    border:2px solid var(--ink); background:var(--paper); color:var(--ink);
-    font-family:inherit; font-weight:800; font-size:9.5px; letter-spacing:.05em;
-    text-transform:uppercase; padding:5px 8px; cursor:pointer; white-space:nowrap;
-  }
-  #view-toggle:active{ background:var(--ink); color:var(--paper); }
-
-  /* ============ POSTER HERO ============ */
-  .poster{
-    margin:0 20px 18px;
-    position:relative;
-    aspect-ratio:2.2/1;
-    overflow:hidden;
-  }
-  .poster-grid{
-    position:absolute; inset:0;
-    display:grid;
-    grid-template-columns:repeat(10,1fr);
-    grid-template-rows:1fr 1fr;
-  }
-  .q-orange{ grid-column:1/6; grid-row:1/2; background:var(--rust); }
-  .q-yellow{ grid-column:6/11; grid-row:1/2; background:var(--pastel-yellow); }
-  .q-cream{ grid-column:1/8; grid-row:2/3; background:var(--cream); }
-  .q-navy{ grid-column:8/11; grid-row:2/3; background:var(--navy); }
-
-  .arch{
-    position:absolute; right:5%; top:8%;
-    width:38%;
-    color:var(--mint);
-  }
-  .arch svg{ display:block; width:100%; height:auto; }
-
-  .poster-copy{
-    position:absolute; left:0; right:0; bottom:0;
-    padding:0 18px 16px;
-    max-width:74%;
-  }
-  .poster-title{
-    margin:0 0 6px; font-weight:900; text-transform:uppercase;
-    font-size:clamp(20px,7vw,30px); line-height:.98; letter-spacing:-.01em;
-  }
-  .poster-tagline{
-    margin:0; font-size:10px; font-weight:700; letter-spacing:.02em;
-    line-height:1.35; text-transform:uppercase;
-  }
-
-  main{ padding:0 20px 30px; }
-
-  /* ============ EXPLAINER / BLURB ============ */
-  .explainer{ margin:30px 0 10px; }
-  .explainer h2{
-    margin:0 0 10px; font-size:19px; font-weight:800; letter-spacing:-.01em;
-  }
-  p.blurb{
-    margin:0 0 14px; font-size:14.5px; line-height:1.6; color:var(--ink);
-  }
-  .intro-blurb{ margin:0 0 22px; }
-  .intro-blurb p.blurb{ margin-bottom:0; }
-
-  /* ============ SIM STAGE ============ */
-  .stage-card{
-    margin:0 0 18px;
-    border:2px solid var(--ink);
-    background:var(--pastel-blue);
-    position:relative;
-  }
-  .stage{
-    position:relative;
-    width:100%;
-    aspect-ratio:5/6;
-    touch-action:none;
-    overflow:hidden;
-  }
-  .stage canvas{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-    display:block;
-  }
-
-  /* ============ READOUT ============ */
-  .readout{
-    display:flex; gap:14px 20px; flex-wrap:wrap;
-    margin-bottom:26px; padding:16px 0; border-top:2px solid var(--ink); border-bottom:2px solid var(--ink);
-  }
-  .readout div{ font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-  .readout b{ display:block; font-size:14px; font-weight:700; letter-spacing:0; margin-top:3px; text-transform:none; }
-  .dots{ display:flex; gap:3px; margin-top:5px; }
-  .dots i{ width:9px; height:9px; border:2px solid var(--ink); background:var(--paper); flex:none; }
-  .dots i.on{ background:var(--red); }
-
-  /* ============ CTA / CONTROLS ============ */
-  .btn-row{ display:flex; gap:10px; }
-
-  #sim-primary, #sim-reset{
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    width:100%;
-    font-family:inherit; font-weight:800; font-size:15px; text-transform:uppercase; letter-spacing:.02em;
-    padding:16px 20px; cursor:pointer;
-    border:2px solid var(--ink);
-  }
-  #sim-primary{ background:var(--bright-yellow); color:var(--ink); flex:1.4; }
-  #sim-reset{ background:var(--paper); color:var(--ink); flex:1; }
-  #sim-primary svg, #sim-reset svg{width:19px; height:19px; flex:none;}
-  #sim-primary .sub, #sim-reset .sub{
-    display:block; font-size:10.5px; font-weight:600; text-transform:none; letter-spacing:0; opacity:.75; margin-top:1px;
-  }
-
-  .hint{
-    margin-top:12px; font-size:11.5px; font-weight:500; color:var(--ink); text-align:center;
-    min-height:2.8em;
-  }
-  .build-tag{
-    margin-top:26px; font-size:9.5px; font-weight:600; color:var(--ink); text-align:center; opacity:.4;
-  }
-
-  /* ============ FOOTER ============ */
-  .brand-footer{
-    padding:26px 20px 34px; border-top:2px solid var(--ink);
-    font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; line-height:1.6;
-  }
-
-  /* ============ DESKTOP VIEW ============ */
-  :root[data-view="desktop"] .wrap{ max-width:760px; }
-  :root[data-view="desktop"] .poster-title{ font-size:clamp(26px,5vw,38px); }
-  :root[data-view="desktop"] .explainer h2{ font-size:22px; }
-  :root[data-view="desktop"] p.blurb{ font-size:15.5px; }
-  :root[data-view="desktop"] .stage-card{
-    max-width:460px; margin-left:auto; margin-right:auto;
-  }
-  :root[data-view="desktop"] .btn-row{ max-width:460px; margin:0 auto; }
-  :root[data-view="desktop"] #sim-primary, :root[data-view="desktop"] #sim-reset{
-    cursor:pointer;
-  }
-  :root[data-view="desktop"] #sim-primary:hover, :root[data-view="desktop"] #sim-reset:hover{
-    opacity:.85;
-  }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="wrap">
   <header class="topbar">
     <div class="wordmark">
-      <span class="word">SCAPE&deg;</span>
+      <span class="word">SCAPE°</span>
       <span class="sub">Wetter, Klima, Mensch</span>
     </div>
-    <div class="topbar-right">
-      <button id="view-toggle" type="button"></button>
-    </div>
+    <button id="view-toggle" type="button"></button>
   </header>
 
   <div class="poster">
@@ -240,673 +50,251 @@
       </svg>
     </div>
     <div class="poster-copy">
-      <h1 class="poster-title">Die Windg&uuml;rtel der Erde</h1>
-      <p class="poster-tagline">Wie die globale Zirkulation entsteht</p>
+      <h1 class="poster-title">Die Windgürtel der Erde</h1>
+      <p class="poster-tagline">In drei Experimenten verstehen</p>
     </div>
   </div>
 
   <main>
-    <div class="intro-blurb">
-      <p class="blurb"><b>So funktioniert's:</b> Dr&uuml;cke unten auf <b>Start</b>. Die Sonne heizt den &Auml;quator stark auf, die Pole kaum &mdash; und weil die Erde sich dreht, zerf&auml;llt der eine gro&szlig;e Kreislauf in drei kleinere Zellen pro Halbkugel. Beobachte, wie daraus Passat, Westwind und Polarer Ostwind entstehen.</p>
-    </div>
+    <p class="lead">
+      Warum weht der Wind in Deutschland meistens von Westen? Warum gibt es am Äquator Regenwald und etwas weiter nördlich die Sahara?
+      Die Antwort steckt in einem riesigen Kreislauf der Luft rund um die Erde. Um ihn zu verstehen, brauchst du nur <b>zwei Zutaten</b> –
+      und genau die schauen wir uns zuerst an.
+    </p>
 
-    <div class="stage-card">
-      <div class="stage" id="stage">
-        <canvas id="scene-canvas"></canvas>
+    <nav class="chapter-nav" id="chapter-nav" role="tablist" aria-label="Die drei Experimente">
+      <button class="chapter-tab" role="tab" data-ch="sonne" aria-controls="ch-sonne">
+        <span class="num">1</span>
+        <span class="t">Die Sonne</span>
+        <span class="s">Warum ist es am Äquator warm und an den Polen kalt?</span>
+      </button>
+      <button class="chapter-tab" role="tab" data-ch="coriolis" aria-controls="ch-coriolis">
+        <span class="num">2</span>
+        <span class="t">Die Erddrehung</span>
+        <span class="s">Was macht die Corioliskraft?</span>
+      </button>
+      <button class="chapter-tab" role="tab" data-ch="zirkulation" aria-controls="ch-zirkulation">
+        <span class="num">3</span>
+        <span class="t">Alles zusammen</span>
+        <span class="s">So entstehen die Windgürtel der Erde</span>
+      </button>
+    </nav>
+
+    <!-- ================= CHAPTER 1 ================= -->
+    <section class="chapter" id="ch-sonne" data-ch="sonne" role="tabpanel">
+      <p class="kicker">Experiment 1 von 3 · Zutat Nr. 1</p>
+      <h2>Warum ist es am Äquator heiß und an den Polen kalt?</h2>
+      <p class="question">
+        Die Sonne scheint auf die ganze Erde. Trotzdem ist es am Äquator das ganze Jahr über heiß, und an den Polen liegt Eis.
+        Dabei ist der Äquator der Sonne kaum näher als der Nordpol. Woran liegt es also?
+      </p>
+      <p class="howto">
+        <b>So geht's:</b> Die beiden Lichtstrahlen <b class="c-red">A</b> und <b class="c-cyan">B</b> sind gleich breit und bringen gleich viel Licht
+        (gelbe Punkte). Strahl <b class="c-red">A</b> trifft den Äquator. Schiebe den Regler, um Strahl <b class="c-cyan">B</b> weiter nach Norden zu schicken.
+        Unten siehst du den Boden in der Nahaufnahme, aufgeteilt in gleich große Kacheln.
+      </p>
+
+      <div class="stage-card" id="sun-card">
+        <div class="stage"><canvas aria-label="Simulation: Sonnenlicht trifft am Äquator steil und am Pol flach auf"></canvas></div>
       </div>
-    </div>
 
-    <div class="readout" id="readout">
-      <div>Status<b id="ro-status">Ruhig &ndash; Sonne startet</b></div>
-      <div>Temperaturgef&auml;lle<b id="ro-dt">&Auml;quator 15&deg; &middot; Pol 15&deg;</b></div>
-      <div>Windst&auml;rke
-        <div class="dots" id="ro-wind" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i>
+      <div class="controls">
+        <div class="control">
+          <label for="lat-slider" class="control-label">Wo trifft Strahl B auf? <b id="lat-value" class="c-cyan">50° Nord</b></label>
+          <input type="range" id="lat-slider" min="20" max="70" step="1" value="50">
+          <div class="seg presets" id="sun-presets">
+            <button type="button" data-lat="23">23° – Sahara</button>
+            <button type="button" data-lat="50">50° – Deutschland</button>
+            <button type="button" data-lat="70">70° – Nordkap</button>
+          </div>
+        </div>
+        <p class="live-result" id="sun-result" aria-live="polite"></p>
+      </div>
+
+      <div class="explain">
+        <h3>Was passiert hier?</h3>
+        <ol>
+          <li><b>Am Äquator trifft das Licht fast senkrecht auf.</b> Die ganze Energie des Strahls landet auf einer kleinen Fläche – hier auf 2 Kacheln. Jede Kachel wird kräftig aufgeheizt.</li>
+          <li><b>Weiter im Norden trifft es schräg auf</b>, weil die Erde eine Kugel ist. Dieselbe Menge Licht verteilt sich jetzt auf viel mehr Kacheln. Jede einzelne bekommt weniger ab und bleibt kühler.</li>
+          <li><b>Probier's mit einer Taschenlampe:</b> Leuchte senkrecht auf den Tisch – ein kleiner, heller Fleck. Halte sie schräg – der Fleck wird groß und schwach. Genau das passiert auf der Erde.</li>
+          <li><b>Dazu kommt noch:</b> Schräge Strahlen müssen einen längeren Weg durch die Lufthülle (hellblauer Rand) zurücklegen. Dabei geht zusätzlich Energie verloren.</li>
+        </ol>
+      </div>
+      <div class="merke">
+        <b>Merke:</b> Der Äquator bekommt pro Quadratmeter viel mehr Sonnenenergie als die Pole. Deshalb ist es dort warm und an den Polen kalt.
+        <b>Dieser Temperaturunterschied ist der Motor aller großen Winde.</b> Warme Luft ist leicht und steigt auf, kalte Luft ist schwer und sinkt ab.
+      </div>
+      <button class="next-btn" type="button" data-go="coriolis">Weiter zu Experiment 2: Die Corioliskraft →</button>
+    </section>
+
+    <!-- ================= CHAPTER 2 ================= -->
+    <section class="chapter" id="ch-coriolis" data-ch="coriolis" role="tabpanel">
+      <p class="kicker">Experiment 2 von 3 · Zutat Nr. 2</p>
+      <h2>Was macht die Corioliskraft?</h2>
+      <p class="question">
+        Wind ist Luft, die von einem Ort zum anderen strömt. Man könnte meinen, sie strömt einfach geradeaus.
+        Aber die Erde unter ihr dreht sich. Was bedeutet das für den Wind?
+      </p>
+      <p class="howto">
+        <b>So geht's:</b> Stell dir ein Karussell vor. Du stehst in der Mitte und wirfst einem Freund am Rand einen Ball zu.
+        Drücke auf <b>„Ball werfen“</b>. Das erste Bild zeigt den Wurf von oben aus dem Weltall, das zweite so, wie du ihn auf dem Karussell erlebst.
+        Danach kannst du dasselbe mit der <b>Erde</b> ausprobieren.
+      </p>
+
+      <div class="stage-card" id="cor-card">
+        <div class="stage"><canvas aria-label="Simulation: Ball auf einem drehenden Karussell, von außen und von innen gesehen"></canvas></div>
+      </div>
+
+      <div class="controls">
+        <div class="control">
+          <span class="control-label">Was soll sich drehen?</span>
+          <div class="seg" id="cor-mode">
+            <button type="button" data-value="karussell" aria-pressed="true">Ein Karussell</button>
+            <button type="button" data-value="erde" aria-pressed="false">Die Erde (Blick von oben auf den Pol)</button>
+          </div>
+        </div>
+        <button type="button" class="btn-primary" id="cor-throw">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
+          <span id="cor-throw-label">Ball werfen</span>
+        </button>
+        <div class="control" id="cor-earthdir-row" hidden>
+          <span class="control-label">Wohin soll die Luft strömen? (Start bei 30° Nord)</span>
+          <div class="seg" id="cor-earthdir">
+            <button type="button" data-value="aequator" aria-pressed="true">Richtung Äquator</button>
+            <button type="button" data-value="pol" aria-pressed="false">Richtung Pol</button>
+          </div>
+        </div>
+        <div class="control">
+          <label for="cor-speed" class="control-label">Drehgeschwindigkeit: <b id="cor-speed-value">mittel</b></label>
+          <input type="range" id="cor-speed" min="0" max="10" step="1" value="5">
+        </div>
+        <div class="control">
+          <span class="control-label" id="cor-dir-label">Drehrichtung</span>
+          <div class="seg" id="cor-hemi">
+            <button type="button" data-value="1" aria-pressed="true">gegen den Uhrzeigersinn (wie die Nordhalbkugel)</button>
+            <button type="button" data-value="-1" aria-pressed="false">im Uhrzeigersinn (wie die Südhalbkugel)</button>
+          </div>
+        </div>
+        <p class="live-result" id="cor-result" aria-live="polite"></p>
+      </div>
+
+      <div class="explain">
+        <h3>Was passiert hier?</h3>
+        <ol>
+          <li><b>Der Ball fliegt in Wirklichkeit geradeaus.</b> Niemand schubst ihn zur Seite – das siehst du im ersten Bild von oben.</li>
+          <li><b>Aber das Karussell dreht sich weiter,</b> während der Ball fliegt. Wenn er am Rand ankommt, ist dein Freund schon ein Stück weitergefahren.</li>
+          <li><b>Für dich auf dem Karussell sieht es so aus, als würde der Ball abbiegen.</b> Diese scheinbare Kraft nennt man <b>Corioliskraft</b>. Je schneller die Drehung, desto stärker die Ablenkung.</li>
+          <li><b>Die Erde ist ein riesiges Karussell.</b> Von oben auf den Nordpol geschaut, dreht sie sich gegen den Uhrzeigersinn. Wir drehen uns mit – deshalb sehen wir, wie der Wind abgelenkt wird. Wähle oben <b>„Die Erde“</b> und probier es aus.</li>
+          <li><b>Am Pol ist die Ablenkung am stärksten, am Äquator gibt es sie nicht.</b> Dort dreht sich der Boden nicht unter der Luft weg, sondern trägt sie nur mit.</li>
+        </ol>
+      </div>
+      <div class="merke">
+        <b>Merke:</b> Auf der <b>Nordhalbkugel</b> wird alles, was sich über große Strecken bewegt – Wind, Meeresströmungen –, <b>nach rechts</b> abgelenkt.
+        Auf der <b>Südhalbkugel</b> <b>nach links</b>. Luft, die zum Äquator strömt, wird so nach Westen abgelenkt.
+      </div>
+      <button class="next-btn" type="button" data-go="zirkulation">Weiter zu Experiment 3: Alles zusammen →</button>
+    </section>
+
+    <!-- ================= CHAPTER 3 ================= -->
+    <section class="chapter" id="ch-zirkulation" data-ch="zirkulation" role="tabpanel">
+      <p class="kicker">Experiment 3 von 3 · Alles zusammen</p>
+      <h2>Wie entstehen die Windgürtel der Erde?</h2>
+      <p class="question">
+        Jetzt kombinieren wir beide Zutaten: <b>ungleiche Erwärmung</b> (Experiment 1) und <b>Erddrehung</b> (Experiment 2).
+        Geh Schritt für Schritt durch und schau zu, wie daraus die großen Luftkreisläufe und Windgürtel entstehen.
+      </p>
+
+      <ol class="stepper" id="circ-steps" aria-label="Schritte">
+        <li><button type="button">1 · Sonne heizt</button></li>
+        <li><button type="button">2 · Ein Kreislauf</button></li>
+        <li><button type="button">3 · Erde dreht sich</button></li>
+        <li><button type="button">4 · Hoch &amp; Tief</button></li>
+        <li><button type="button">5 · Windgürtel</button></li>
+      </ol>
+
+      <div class="stage-card" id="circ-card">
+        <div class="stage"><canvas aria-label="Simulation: Globus mit den drei Zirkulationszellen je Halbkugel und den Bodenwinden"></canvas></div>
+      </div>
+
+      <div class="step-nav">
+        <button type="button" class="btn" id="circ-prev">← Zurück</button>
+        <span id="circ-counter" class="step-counter">Schritt 1 von 5</span>
+        <button type="button" class="btn btn-go" id="circ-next">Weiter →</button>
+      </div>
+
+      <div id="circ-captions" aria-live="polite">
+        <div class="step-caption">
+          <h3>1 · Die Sonne heizt ungleich</h3>
+          <p>Wie in Experiment 1: Am Äquator wird es warm, an den Polen bleibt es kalt (die Farben auf dem Globus).</p>
+          <p>Die <b>warme Luft am Äquator</b> ist leicht und steigt auf. Am Boden fehlt dann Luft, der Luftdruck sinkt: ein <b class="c-red">Tiefdruckgebiet (T)</b>.
+          Die <b>kalte Luft an den Polen</b> ist schwer und sinkt ab. Dort drückt mehr Luft auf den Boden: ein <b class="c-navy">Hochdruckgebiet (H)</b>.</p>
+        </div>
+        <div class="step-caption" hidden>
+          <h3>2 · Ohne Erddrehung: ein großer Kreislauf</h3>
+          <p>Würde sich die Erde nicht drehen, gäbe es auf jeder Halbkugel <b>nur einen einzigen Kreislauf</b> (rechts am Globus):
+          Die Luft steigt am Äquator auf, strömt hoch oben zum Pol, sinkt dort ab und fließt am Boden zurück zum Äquator.</p>
+          <p>Die weißen Pfeile zeigen den Wind am Boden: überall <b>geradewegs zum Äquator</b>. So stellte man sich das schon vor fast 300 Jahren vor.</p>
+        </div>
+        <div class="step-caption" hidden>
+          <h3>3 · Die Erde dreht sich: aus einem Kreislauf werden drei</h3>
+          <p>Jetzt kommt die <b>Corioliskraft</b> aus Experiment 2 dazu. Die Luft, die hoch oben vom Äquator Richtung Pol strömt, wird immer stärker nach Osten abgelenkt.
+          Bei etwa <b>30° Breite</b> kommt sie kaum noch weiter nach Norden, staut sich und sinkt ab.</p>
+          <p>So zerfällt der große Kreislauf in <b>drei kleinere Zellen</b> pro Halbkugel:
+          die <b class="c-rust">Hadley-Zelle</b> (0–30°), die <b class="c-cyan">Ferrel-Zelle</b> (30–60°, sie dreht andersherum) und die <b class="c-navy">Polarzelle</b> (60–90°).
+          Auch die Bodenwinde (weiße Pfeile) werden jetzt abgelenkt.</p>
+        </div>
+        <div class="step-caption" hidden>
+          <h3>4 · Hoch- und Tiefdruckgürtel</h3>
+          <p>Wo Luft <b>aufsteigt</b>, entsteht am Boden ein <b class="c-red">Tief (T)</b>. Aufsteigende Luft kühlt ab, es bilden sich Wolken und Regen.
+          Wo Luft <b>absinkt</b>, entsteht ein <b class="c-navy">Hoch (H)</b>. Absinkende Luft erwärmt sich, Wolken lösen sich auf, es bleibt trocken.</p>
+          <ul>
+            <li><b class="c-red">T am Äquator</b> („ITCZ“): jeden Tag Gewitter – hier wächst der tropische Regenwald.</li>
+            <li><b class="c-navy">H bei 30°</b>: trockene, absinkende Luft – hier liegen die großen Wüsten wie die Sahara.</li>
+            <li><b class="c-red">T bei 60°</b>: hier bilden sich immer wieder Tiefdruckgebiete – wechselhaftes Wetter wie in Deutschland.</li>
+            <li><b class="c-navy">H am Pol</b>: kalte, schwere, absinkende Luft.</li>
+          </ul>
+        </div>
+        <div class="step-caption" hidden>
+          <h3>5 · Die Windgürtel</h3>
+          <p>Am Boden strömt die Luft immer <b>vom Hoch zum Tief</b>, und die Corioliskraft lenkt sie dabei ab (Nordhalbkugel nach rechts, Südhalbkugel nach links). So entstehen drei Windgürtel je Halbkugel:</p>
+          <ul>
+            <li><b>Passat</b> (0–30°): weht vom Hoch bei 30° zum Äquator und kommt aus Nordosten bzw. Südosten. Seefahrer nutzten ihn früher, um über den Atlantik zu segeln.</li>
+            <li><b>Westwinde</b> (30–60°): wehen vom Hoch bei 30° zum Tief bei 60° und kommen aus Westen. <b>Deutschland liegt in dieser Zone</b> – deshalb kommt unser Wetter meistens vom Atlantik im Westen.</li>
+            <li><b>Polare Ostwinde</b> (60–90°): kalte Luft strömt vom Polarhoch weg und kommt aus Osten.</li>
+          </ul>
         </div>
       </div>
-      <div>Rotation<b id="ro-rot">0&nbsp;%</b></div>
-    </div>
 
-    <div class="btn-row">
-      <button id="sim-primary">
-        <svg id="sim-primary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l14 8-14 8V4z" fill="currentColor" stroke="none"/></svg>
-        <span>
-          <span id="sim-primary-label">Start</span>
-          <span class="sub" id="sim-primary-sub">Zirkulation beginnt</span>
-        </span>
-      </button>
-      <button id="sim-reset">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
-        <span>
-          <span>Reset</span>
-        </span>
-      </button>
-    </div>
-    <div class="hint" id="hint">Warme Luft steigt auf, kalte sinkt &mdash; aber ohne Rotation nur in einem einzigen Kreislauf.</div>
+      <div class="legend">
+        <h3>Legende</h3>
+        <div class="legend-grid">
+          <div><span class="sw" style="background:rgba(198,90,42,.45)"></span><span><b>Hadley-Zelle</b> (0–30°)</span></div>
+          <div><span class="sw" style="background:rgba(16,147,196,.45)"></span><span><b>Ferrel-Zelle</b> (30–60°)</span></div>
+          <div><span class="sw" style="background:rgba(40,52,143,.45)"></span><span><b>Polarzelle</b> (60–90°)</span></div>
+          <div><span class="badge c-red">T</span><span><b>Tiefdruck</b>: Luft steigt auf, Wolken und Regen</span></div>
+          <div><span class="badge c-navy">H</span><span><b>Hochdruck</b>: Luft sinkt ab, trocken</span></div>
+          <div><span class="arrow-key" aria-hidden="true">➜</span><span><b>Weiße Pfeile</b>: Wind am Boden</span></div>
+          <div><span class="dot-key" aria-hidden="true"></span><span><b>Weiße Punkte</b>: Luft, die im Kreislauf mitströmt</span></div>
+        </div>
+      </div>
 
-    <div class="explainer">
-      <h2>Warum hat die Erde Windg&uuml;rtel?</h2>
-      <p class="blurb">
-        Am &Auml;quator steht die Sonne das ganze Jahr &uuml;ber steil am Himmel, an den Polen erreicht sie nur einen flachen Winkel &uuml;ber dem Horizont. Dieselbe Menge Sonnenenergie verteilt sich am Pol deshalb auf eine viel gr&ouml;&szlig;ere Fl&auml;che als am &Auml;quator &mdash; die Pole bekommen im Schnitt viel weniger Energie ab. Genau wie beim Land-Seewind-Prinzip entsteht daraus ein Temperaturgef&auml;lle: Die warme Luft am &Auml;quator wird leichter, steigt auf und hinterl&auml;sst am Boden ein Tief. Ohne Erdrotation w&uuml;rde daraus einfach ein einziger riesiger Kreislauf pro Halbkugel entstehen &mdash; aufsteigen am &Auml;quator, hoch oben Richtung Pol str&ouml;men, dort absinken und am Boden zur&uuml;ck zum &Auml;quator str&ouml;men.
-      </p>
-      <p class="blurb">
-        Doch die Erde dreht sich, und das &auml;ndert alles. Die Corioliskraft lenkt jede str&ouml;mende Luftmasse zur Seite ab und zerlegt den einen gro&szlig;en Kreislauf in drei kleinere Zellen pro Halbkugel: die Hadley-Zelle zwischen &Auml;quator und 30&deg; Breite, die entgegengesetzt drehende Ferrel-Zelle zwischen 30&deg; und 60&deg;, und die Polarzelle von 60&deg; bis zum Pol. An ihren Grenzen entstehen die gro&szlig;en Druckg&uuml;rtel der Erde &mdash; Tiefdruck am &Auml;quator (die ITCZ), Hochdruck bei 30&deg; (wo die gro&szlig;en W&uuml;sten liegen), wieder Tiefdruck bei 60&deg; und Hochdruck am Pol. Am Boden dazwischen wehen die drei gro&szlig;en Windb&auml;nder: der Passat, der Westwind und der Polare Ostwind. Dasselbe simple Prinzip wie beim Seewind &mdash; nur einmal um den ganzen Planeten gelegt.
-      </p>
-    </div>
-    <div class="build-tag">build v1</div>
+      <div class="merke">
+        <b>Merke:</b> Die Sonne heizt ungleich, warme Luft steigt auf, kalte sinkt ab. Die Erddrehung lenkt die strömende Luft ab und teilt den Kreislauf in drei Zellen.
+        Daraus entstehen die Druckgürtel (Regenwald am Äquator, Wüsten bei 30°) und die Windgürtel: <b>Passat, Westwinde und Polare Ostwinde</b>.
+      </div>
+      <button class="next-btn next-btn-secondary" type="button" data-go="sonne">↺ Noch einmal von vorn: Experiment 1</button>
+    </section>
   </main>
 
   <footer class="brand-footer">
-    Wetter, Klima, Wandel.<br>Wir erkl&auml;ren es. &mdash; SCAPE&deg;
+    Wetter, Klima, Wandel.<br>Wir erklären es. – SCAPE°
   </footer>
 </div>
 
-<script>
-(function () {
-  'use strict';
-
-  // ============ DOM ============
-  var stage = document.getElementById('stage');
-  var canvas = document.getElementById('scene-canvas');
-  var ctx = canvas.getContext('2d');
-
-  var primaryBtn = document.getElementById('sim-primary');
-  var primaryLabel = document.getElementById('sim-primary-label');
-  var primarySub = document.getElementById('sim-primary-sub');
-  var primaryIcon = document.getElementById('sim-primary-icon');
-  var resetBtn = document.getElementById('sim-reset');
-  var roStatus = document.getElementById('ro-status');
-  var roDt = document.getElementById('ro-dt');
-  var roRot = document.getElementById('ro-rot');
-  var windDots = document.getElementById('ro-wind').children;
-  var hintEl = document.getElementById('hint');
-
-  var dpr = Math.min(window.devicePixelRatio || 1, 2);
-  var W = 0, H = 0;
-
-  // ============ LAYOUT — a pseudo-3D globe (plain 2D canvas, orthographic projection, no
-  // WebGL / no libraries). Rotation axis is vertical (poles at top/bottom of the disc), so a
-  // circle of constant latitude phi projects to a horizontal chord at y = cy - hemi*R*sin(phi),
-  // spanning x in [cx - R*cos(phi), cx + R*cos(phi)] on the visible (front) hemisphere. That
-  // one formula (sphereXY below) is the only projection math the whole scene needs. ============
-  var cx = 0, cy = 0, R = 0, TUBE_W = 0, sunR = 14;
-
-  function layout() {
-    var rect = stage.getBoundingClientRect();
-    W = rect.width;
-    H = rect.height;
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    cx = W * 0.5;
-    cy = H * 0.44;
-    R = W * 0.27;
-    TUBE_W = R * 0.32;
-    sunR = Math.max(10, W * 0.030);
-  }
-
-  // phiDeg: latitude 0..90. hemi: +1 north (up) / -1 south (down). side: +1 right limb / -1
-  // left limb. offset: radial distance bulging outward from the sphere's silhouette (0 = right
-  // on the sphere's edge, >0 = the flow "tube" floating just outside it).
-  function sphereXY(phiDeg, hemi, side, offset) {
-    var rad = phiDeg * Math.PI / 180;
-    var edgeX = R * Math.cos(rad);
-    var edgeY = R * Math.sin(rad);
-    return { x: cx + side * (edgeX + offset), y: cy - hemi * edgeY };
-  }
-
-  // ============ STORY CLOCK ============
-  // A single clock, storyT, only advances while running. It drives two eased quantities:
-  // aEff ("how strongly is the sun heating the equator vs. the poles") ramps up first;
-  // rEff ("how strongly does the planet's rotation act") only starts easing in once the
-  // single cell has had time to establish itself, then holds at 1 forever (rotation never
-  // switches off — this is a one-way build-up, not a cycle).
-  var TAU_A = 2.2;
-  var TAU_R = 3.2;
-  var R_START = 7.0;
-
-  var storyT = 0;
-  var aEff = 0;
-  var rEff = 0;
-
-  // ============ COLOR HELPERS ============
-  function hexToRgb(hex) {
-    var v = parseInt(hex.slice(1), 16);
-    return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
-  }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function lerpColor(c1, c2, t) {
-    t = Math.min(1, Math.max(0, t));
-    return 'rgb(' + Math.round(lerp(c1.r, c2.r, t)) + ',' + Math.round(lerp(c1.g, c2.g, t)) + ',' + Math.round(lerp(c1.b, c2.b, t)) + ')';
-  }
-  function clamp01(v) { return Math.min(1, Math.max(0, v)); }
-  function gate(v, lo, hi) { return clamp01((v - lo) / (hi - lo)); }
-  function smoothstep(x) { x = clamp01(x); return x * x * (3 - 2 * x); }
-
-  var COL_CREAM = hexToRgb('#f2e2c0');
-  var COL_SKY_NEUTRAL = hexToRgb('#f5f0e3');
-  var COL_SKY_DAY = hexToRgb('#eaf6fb');
-  var ZONE_TROPICAL = hexToRgb('#ef8f2c');
-  var ZONE_TEMPERATE = hexToRgb('#4ab48a');
-  var ZONE_ICE = hexToRgb('#eaf6fb');
-
-  // ============ CELL / TUBE MODEL ============
-  // Each "tube" is the meridional circulation loop for one latitude band, one hemisphere, one
-  // limb (left/right) — drawn as a ribbon hugging the sphere's edge and bulging outward, the
-  // same visual language as a textbook 3-cell globe diagram. sense=+1 is a *direct* cell
-  // (surface flow equatorward, aloft poleward — Hadley's original single-cell idea, and also
-  // true of the real Hadley and Polar cells); sense=-1 is the *indirect* Ferrel cell, running
-  // the opposite way, sandwiched between the two direct ones. These senses, and which latitude
-  // band is rising vs. sinking, were derived analytically and cross-checked against a Python
-  // streamplot before being carried over from the flat first version of this simulation.
-  var HEMIS = [1, -1];
-  var SIDES = [1, -1];
-  var SINGLE_BANDS = [{ lo: 0, hi: 90, sense: 1, color: '#ef8f2c' }];
-  var THREE_BANDS = [
-    { lo: 0, hi: 30, sense: 1, color: '#c65a2a', label: 'PASSAT' },
-    { lo: 30, hi: 60, sense: -1, color: '#1093c4', label: 'WESTWIND' },
-    { lo: 60, hi: 90, sense: 1, color: '#28348f', label: 'OSTWIND' }
-  ];
-
-  function buildTubeConfigs(bands) {
-    var cfgs = [];
-    for (var b = 0; b < bands.length; b++) {
-      for (var h = 0; h < HEMIS.length; h++) {
-        for (var s = 0; s < SIDES.length; s++) {
-          cfgs.push({ lo: bands[b].lo, hi: bands[b].hi, sense: bands[b].sense, hemi: HEMIS[h], side: SIDES[s], color: bands[b].color });
-        }
-      }
-    }
-    return cfgs;
-  }
-  var singleTubeCfgs = buildTubeConfigs(SINGLE_BANDS); // 1 band x 2 hemi x 2 sides = 4 tubes
-  var threeTubeCfgs = buildTubeConfigs(THREE_BANDS);   // 3 bands x 2 hemi x 2 sides = 12 tubes
-
-  function tubeBoundaryPoints(cfg) {
-    var N = 10, pts = [];
-    for (var i = 0; i <= N; i++) pts.push(sphereXY(lerp(cfg.lo, cfg.hi, i / N), cfg.hemi, cfg.side, 0));
-    for (var i = 0; i <= N; i++) pts.push(sphereXY(lerp(cfg.hi, cfg.lo, i / N), cfg.hemi, cfg.side, TUBE_W));
-    return pts;
-  }
-
-  // Radial offset as a function of loop-parameter s in [0,1): sits at the inner edge (surface,
-  // offset=0) through the first half, ramps smoothly out to the outer edge (aloft, offset=
-  // TUBE_W) right at the end of that half, stays there through the second half, then ramps
-  // smoothly back down right at the wrap — so a particle glides through both "caps" instead of
-  // teleporting across the tube's width.
-  function tubeOffsetAtS(s) {
-    var TWID = 0.08;
-    if (s < 0.5) {
-      if (s > 0.5 - TWID) return TUBE_W * smoothstep((s - (0.5 - TWID)) / TWID);
-      return 0;
-    }
-    if (s > 1 - TWID) return TUBE_W * (1 - smoothstep((s - (1 - TWID)) / TWID));
-    return TUBE_W;
-  }
-
-  function tubePointAtS(cfg, s, jitter) {
-    var half = s < 0.5;
-    var t = half ? s * 2 : (s - 0.5) * 2;
-    var equatorward = cfg.sense > 0 ? half : !half;
-    var phi = equatorward ? lerp(cfg.hi, cfg.lo, t) : lerp(cfg.lo, cfg.hi, t);
-    var offset = tubeOffsetAtS(s) + jitter * TUBE_W * 0.5;
-    offset = Math.max(1, Math.min(TUBE_W - 1, offset));
-    return sphereXY(phi, cfg.hemi, cfg.side, offset);
-  }
-
-  // ============ PARTICLES ============
-  // Two pools — one cycling in the single big tubes, one in the three-cell tubes — both always
-  // animating; only their *drawn alpha* crossfades as rEff ramps, which is a much simpler (and
-  // just as smooth) way to dissolve from one cell structure into the other than morphing paths.
-  var PER_TUBE_SINGLE = 12, PER_TUBE_THREE = 8, SPEED = 0.11;
-
-  function makePool(cfgs, perTube) {
-    var pool = [];
-    for (var i = 0; i < cfgs.length; i++) {
-      for (var j = 0; j < perTube; j++) {
-        pool.push({ tubeIdx: i, s: Math.random(), jitter: (Math.random() * 2 - 1) * 0.5, x: 0, y: 0, px: 0, py: 0, inited: false });
-      }
-    }
-    return pool;
-  }
-  var poolSingle = makePool(singleTubeCfgs, PER_TUBE_SINGLE);
-  var poolThree = makePool(threeTubeCfgs, PER_TUBE_THREE);
-
-  function resetPools() {
-    [[poolSingle, singleTubeCfgs], [poolThree, threeTubeCfgs]].forEach(function (pair) {
-      pair[0].forEach(function (p) { p.s = Math.random(); p.inited = false; });
-    });
-  }
-
-  function advancePool(pool, cfgs, dt) {
-    for (var i = 0; i < pool.length; i++) {
-      var p = pool[i];
-      var cfg = cfgs[p.tubeIdx];
-      p.s += SPEED * aEff * dt;
-      if (p.s >= 1) p.s -= 1;
-      var pos = tubePointAtS(cfg, p.s, p.jitter);
-      if (!p.inited) { p.px = pos.x; p.py = pos.y; p.inited = true; } else { p.px = p.x; p.py = p.y; }
-      p.x = pos.x; p.y = pos.y;
-    }
-  }
-
-  // ============ SIM STATE ============
-  var SIM_SETUP = 'setup', SIM_RUN = 'run', SIM_PAUSED = 'paused';
-  var simState = SIM_SETUP;
-  var running = false;
-
-  function updatePhysics(dt) {
-    storyT += dt;
-    aEff += (1 - aEff) * Math.min(1, dt / TAU_A);
-    var rTarget = storyT > R_START ? 1 : 0;
-    rEff += (rTarget - rEff) * Math.min(1, dt / TAU_R);
-
-    advancePool(poolSingle, singleTubeCfgs, dt);
-    advancePool(poolThree, threeTubeCfgs, dt);
-  }
-
-  // ============ RENDER ============
-  function faceGradient() {
-    var g = ctx.createLinearGradient(0, cy - R, 0, cy + R);
-    var zones = [{ lo: 60, hi: 90, color: ZONE_ICE }, { lo: 30, hi: 60, color: ZONE_TEMPERATE }, { lo: 0, hi: 30, color: ZONE_TROPICAL }];
-    function frac(phi, hemi) { return 0.5 - hemi * Math.sin(phi * Math.PI / 180) * 0.5; }
-    [1, -1].forEach(function (hemi) {
-      zones.forEach(function (z) {
-        var c = lerpColor(COL_CREAM, z.color, aEff);
-        var f1 = hemi > 0 ? frac(z.hi, hemi) : frac(z.lo, hemi);
-        var f2 = hemi > 0 ? frac(z.lo, hemi) : frac(z.hi, hemi);
-        g.addColorStop(clamp01(f1), c);
-        g.addColorStop(clamp01(f2), c);
-      });
-    });
-    return g;
-  }
-
-  function drawSphereFace() {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.fillStyle = faceGradient();
-    ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
-
-    var vg = ctx.createRadialGradient(cx - R * 0.32, cy - R * 0.35, R * 0.15, cx, cy, R * 1.05);
-    vg.addColorStop(0, 'rgba(255,255,255,0.20)');
-    vg.addColorStop(0.6, 'rgba(255,255,255,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.22)');
-    ctx.fillStyle = vg;
-    ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
-    ctx.restore();
-  }
-
-  function drawSphereOutline() {
-    ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.stroke();
-
-    var alpha = gate(rEff, 0.04, 0.35);
-    if (alpha < 0.01) return;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.strokeStyle = 'rgba(17,17,17,0.4)';
-    ctx.lineWidth = 1.4;
-    ctx.setLineDash([1, 5]);
-    ctx.beginPath();
-    ctx.moveTo(cx - R, cy);
-    ctx.lineTo(cx + R, cy);
-    ctx.stroke();
-    [30, 60].forEach(function (latDeg) {
-      [1, -1].forEach(function (hemi) {
-        var y = cy - hemi * R * Math.sin(latDeg * Math.PI / 180);
-        var half = R * Math.cos(latDeg * Math.PI / 180);
-        ctx.beginPath();
-        ctx.moveTo(cx - half, y);
-        ctx.lineTo(cx + half, y);
-        ctx.stroke();
-      });
-    });
-    ctx.setLineDash([]);
-    ctx.restore();
-  }
-
-  // One sun, two beams: a short, bright, steep beam onto the equator, a long, faint, shallow
-  // one grazing toward the pole. Same amount of light, spread over a much bigger area at low
-  // sun angle — this is *why* the equator ends up so much warmer, drawn rather than asserted.
-  function drawSun() {
-    if (aEff < 0.02) return;
-    var sunPx = { x: cx - R * 1.3, y: cy - R * 1.05 };
-    var eqTarget = { x: cx - R * 0.35, y: cy + R * 0.02 };
-    var poleTarget = { x: cx - R * 0.05, y: cy - R * 0.92 };
-
-    ctx.save();
-    ctx.globalAlpha = aEff;
-
-    ctx.strokeStyle = 'rgba(239,143,44,0.60)';
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(sunPx.x, sunPx.y); ctx.lineTo(eqTarget.x, eqTarget.y); ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(239,143,44,0.20)';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(sunPx.x, sunPx.y); ctx.lineTo(poleTarget.x, poleTarget.y); ctx.stroke();
-
-    var g1 = ctx.createRadialGradient(eqTarget.x, eqTarget.y, 1, eqTarget.x, eqTarget.y, R * 0.22);
-    g1.addColorStop(0, 'rgba(255,228,0,0.45)');
-    g1.addColorStop(1, 'rgba(255,228,0,0)');
-    ctx.fillStyle = g1;
-    ctx.beginPath(); ctx.arc(eqTarget.x, eqTarget.y, R * 0.22, 0, Math.PI * 2); ctx.fill();
-
-    var g2 = ctx.createRadialGradient(poleTarget.x, poleTarget.y, 1, poleTarget.x, poleTarget.y, R * 0.4);
-    g2.addColorStop(0, 'rgba(255,228,0,0.12)');
-    g2.addColorStop(1, 'rgba(255,228,0,0)');
-    ctx.fillStyle = g2;
-    ctx.beginPath(); ctx.arc(poleTarget.x, poleTarget.y, R * 0.4, 0, Math.PI * 2); ctx.fill();
-
-    var grad = ctx.createRadialGradient(sunPx.x, sunPx.y, 2, sunPx.x, sunPx.y, sunR * 1.8);
-    grad.addColorStop(0, 'rgba(255,228,0,0.4)');
-    grad.addColorStop(1, 'rgba(255,228,0,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath(); ctx.arc(sunPx.x, sunPx.y, sunR * 1.8, 0, Math.PI * 2); ctx.fill();
-
-    ctx.fillStyle = '#ffe400';
-    ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(sunPx.x, sunPx.y, sunR, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-    ctx.restore();
-  }
-
-  function drawOneTube(cfg, alpha) {
-    if (alpha < 0.01) return;
-    var pts = tubeBoundaryPoints(cfg);
-    var rgb = hexToRgb(cfg.color);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.beginPath();
-    ctx.moveTo(pts[0].x, pts[0].y);
-    for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.30)';
-    ctx.fill();
-    ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 1.8;
-    ctx.stroke();
-    ctx.restore();
-  }
-  function drawTubeSet(cfgs, alpha) {
-    if (alpha < 0.01) return;
-    for (var i = 0; i < cfgs.length; i++) drawOneTube(cfgs[i], alpha);
-  }
-
-  function drawParticlePool(pool, alpha) {
-    if (alpha < 0.01) return;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.lineCap = 'round';
-    for (var i = 0; i < pool.length; i++) {
-      var p = pool[i];
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-      ctx.lineWidth = 1.3;
-      ctx.beginPath();
-      ctx.moveTo(p.px, p.py);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = 'rgba(17,17,17,0.4)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  // ============ PRESSURE BADGES ============
-  function drawBadge(x, y, letter, color, alpha, caption) {
-    if (alpha < 0.01) return;
-    var r = Math.max(11, W * 0.036);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = '#ffffff';
-    ctx.strokeStyle = '#111111';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = color;
-    ctx.font = '800 ' + Math.round(r * 1.15) + 'px Archivo, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(letter, x, y + 1);
-
-    ctx.font = '800 8.5px Archivo, sans-serif';
-    ctx.fillStyle = '#111111';
-    ctx.textAlign = 'center';
-    ctx.fillText(caption.toUpperCase(), x, y - r - 7);
-
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.restore();
-  }
-
-  function drawPressureBadges() {
-    var outer = gate(aEff, 0.10, 0.35);
-    var rGate = gate(rEff, 0.12, 0.5);
-    var inner = outer * rGate;
-    var x = cx;
-
-    drawBadge(x, cy, 'T', '#df2a1e', outer, 'ITCZ');
-    drawBadge(x, cy - R * Math.sin(30 * Math.PI / 180), 'H', '#28348f', inner, 'Subtropen');
-    drawBadge(x, cy - R * Math.sin(60 * Math.PI / 180), 'T', '#df2a1e', inner, 'Subpolar');
-    drawBadge(x, cy - R, 'H', '#28348f', outer, 'Polarhoch');
-  }
-
-  // ============ LEGEND + LABELS ============
-  function drawLegend() {
-    var alpha = gate(rEff, 0.18, 0.6);
-    if (alpha < 0.01) return;
-    var items = [{ color: '#c65a2a', label: 'PASSAT' }, { color: '#1093c4', label: 'WESTWIND' }, { color: '#28348f', label: 'OSTWIND' }];
-    var xs = [W * 0.17, W * 0.5, W * 0.83];
-    var y = H - 14;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.font = '800 9px Archivo, sans-serif';
-    ctx.textAlign = 'left';
-    for (var i = 0; i < items.length; i++) {
-      ctx.fillStyle = items[i].color;
-      ctx.beginPath();
-      ctx.arc(xs[i] - 24, y - 3, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#111111';
-      ctx.fillText(items[i].label, xs[i] - 16, y);
-    }
-    ctx.restore();
-  }
-
-  function drawAxisLabels() {
-    ctx.save();
-    ctx.font = '700 10px Archivo, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = 'rgba(255,255,255,0.65)';
-    ctx.fillStyle = 'rgba(17,17,17,0.6)';
-    ctx.strokeText('POL', cx, cy - R - 12);
-    ctx.fillText('POL', cx, cy - R - 12);
-    ctx.strokeText('ÄQUATOR', cx, cy - 8);
-    ctx.fillText('ÄQUATOR', cx, cy - 8);
-    ctx.restore();
-    ctx.textAlign = 'left';
-  }
-
-  function render() {
-    ctx.fillStyle = lerpColor(COL_SKY_NEUTRAL, COL_SKY_DAY, aEff);
-    ctx.fillRect(0, 0, W, H);
-
-    drawSphereFace();
-    drawSphereOutline();
-    drawSun();
-
-    var baseAlpha = gate(aEff, 0.10, 0.35);
-    var rGate = gate(rEff, 0.15, 0.65);
-    var singleAlpha = baseAlpha * (1 - rGate);
-    var threeAlpha = baseAlpha * rGate;
-
-    drawTubeSet(singleTubeCfgs, singleAlpha);
-    drawTubeSet(threeTubeCfgs, threeAlpha);
-    drawParticlePool(poolSingle, singleAlpha);
-    drawParticlePool(poolThree, threeAlpha);
-
-    drawPressureBadges();
-    drawLegend();
-    drawAxisLabels();
-
-    ctx.font = '800 11px Archivo, sans-serif';
-    ctx.fillStyle = 'rgba(17,17,17,0.7)';
-    ctx.textAlign = 'right';
-    ctx.fillText('Rotation ' + Math.round(rEff * 100) + ' %', W * 0.94, H * 0.045);
-    ctx.textAlign = 'left';
-  }
-
-  // ============ READOUT ============
-  var lastPhase = '';
-  var PHASE_TEXT = {
-    calm: { status: 'Ruhig – Sonne startet', hint: 'Warme Luft steigt auf, kalte sinkt — aber ohne Rotation nur in einem einzigen Kreislauf.' },
-    single: { status: 'Ein Kreislauf – ohne Rotation', hint: 'Ein Kreislauf pro Halbkugel: auf am Äquator, ab am Pol, zurück am Boden.' },
-    splitting: { status: 'Corioliskraft wirkt', hint: 'Die Erde dreht sich — die Corioliskraft zerlegt den Kreislauf in drei Zellen.' },
-    steady: { status: 'Drei Zellen aktiv', hint: 'Drei Zellen, drei Windgürtel: Passat, Westwind, Polarer Ostwind.' }
-  };
-
-  function currentPhase() {
-    if (aEff < 0.12) return 'calm';
-    if (rEff < 0.12) return 'single';
-    if (rEff < 0.85) return 'splitting';
-    return 'steady';
-  }
-
-  function updateReadout() {
-    var phase = currentPhase();
-    if (phase !== lastPhase) {
-      lastPhase = phase;
-      roStatus.textContent = PHASE_TEXT[phase].status;
-      hintEl.textContent = PHASE_TEXT[phase].hint;
-    }
-
-    var eqTemp = Math.round(15 + aEff * 13);
-    var poleTemp = Math.round(15 - aEff * 40);
-    roDt.textContent = 'Äquator ' + eqTemp + '° · Pol ' + poleTemp + '°';
-
-    var lvl = Math.round(clamp01(aEff) * 5);
-    for (var i = 0; i < windDots.length; i++) {
-      windDots[i].classList.toggle('on', i < lvl);
-    }
-    roRot.textContent = Math.round(rEff * 100) + ' %';
-  }
-
-  // ============ CONTROLS ============
-  var ICON_PLAY = '<path d="M6 4l14 8-14 8V4z" fill="currentColor" stroke="none"/>';
-  var ICON_PAUSE = '<path d="M8 5v14M16 5v14"/>';
-
-  function updatePrimaryButton() {
-    if (simState === SIM_RUN) {
-      primaryLabel.textContent = 'Pause';
-      primarySub.textContent = 'Simulation anhalten';
-      primaryIcon.innerHTML = ICON_PAUSE;
-    } else if (simState === SIM_PAUSED) {
-      primaryLabel.textContent = 'Weiter';
-      primarySub.textContent = 'Simulation fortsetzen';
-      primaryIcon.innerHTML = ICON_PLAY;
-    } else {
-      primaryLabel.textContent = 'Start';
-      primarySub.textContent = 'Zirkulation beginnt';
-      primaryIcon.innerHTML = ICON_PLAY;
-    }
-  }
-
-  primaryBtn.addEventListener('click', function () {
-    if (simState === SIM_RUN) {
-      simState = SIM_PAUSED;
-      running = false;
-    } else {
-      simState = SIM_RUN;
-      running = true;
-      lastT = performance.now();
-    }
-    updatePrimaryButton();
-  });
-
-  resetBtn.addEventListener('click', function () {
-    simState = SIM_SETUP;
-    running = false;
-    storyT = 0;
-    aEff = 0;
-    rEff = 0;
-    lastPhase = '';
-    resetPools();
-    updatePrimaryButton();
-  });
-
-  // ============ VIEW MODE (phone / desktop) ============
-  var VIEW_STORAGE_KEY = 'scapeViewMode';
-  var MOBILE_QUERY = '(max-width: 699px)';
-  var viewToggleBtn = document.getElementById('view-toggle');
-
-  function setViewMode(m) {
-    document.documentElement.setAttribute('data-view', m);
-    viewToggleBtn.textContent = m === 'mobile' ? 'Desktop-Ansicht' : 'Mobile-Ansicht';
-    viewToggleBtn.setAttribute('aria-label', m === 'mobile' ? 'Zur Desktop-Ansicht wechseln' : 'Zur Mobile-Ansicht wechseln');
-  }
-
-  function setupViewToggle() {
-    setViewMode(document.documentElement.getAttribute('data-view') || 'mobile');
-
-    viewToggleBtn.addEventListener('click', function () {
-      var next = document.documentElement.getAttribute('data-view') === 'mobile' ? 'desktop' : 'mobile';
-      setViewMode(next);
-      try { localStorage.setItem(VIEW_STORAGE_KEY, next); } catch (e) {}
-      layout();
-    });
-
-    var mql = window.matchMedia(MOBILE_QUERY);
-    function onViewportChange(e) {
-      var hasOverride = false;
-      try { hasOverride = localStorage.getItem(VIEW_STORAGE_KEY) !== null; } catch (err) {}
-      if (!hasOverride) {
-        setViewMode(e.matches ? 'mobile' : 'desktop');
-        layout();
-      }
-    }
-    if (mql.addEventListener) mql.addEventListener('change', onViewportChange);
-  }
-
-  // ============ MAIN LOOP ============
-  var lastT = 0;
-  function frame(now) {
-    var dt = Math.min((now - lastT) / 1000, 0.05);
-    lastT = now;
-    if (running) updatePhysics(dt);
-    render();
-    updateReadout();
-    requestAnimationFrame(frame);
-  }
-
-  window.addEventListener('resize', layout);
-  window.addEventListener('orientationchange', function () { setTimeout(layout, 200); });
-
-  setupViewToggle();
-  layout();
-  updatePrimaryButton();
-  lastT = performance.now();
-  requestAnimationFrame(frame);
-})();
-</script>
-
+<script src="js/common.js"></script>
+<script src="js/sim-sun.js"></script>
+<script src="js/sim-coriolis.js"></script>
+<script src="js/sim-circulation.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

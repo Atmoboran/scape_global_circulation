@@ -1,51 +1,48 @@
 # SCAPE° — Die Windgürtel der Erde
 
-A browser-only simulation of Earth's global atmospheric circulation,
-illustrating how the same "warm rises, cold sinks, wind fills the gap"
-principle behind a simple sea breeze — scaled up to a whole planet and bent
-by rotation — produces the Hadley, Ferrel and Polar cells, and the pressure
-and wind belts that ride on top of them.
+A browser-only, German-language explainer of Earth's global atmospheric
+circulation for non-experts, built as three short interactive experiments
+that each add one idea:
 
-Press **Start** and watch a single guided build-up on a pseudo-3D globe: the
-sun starts heating the equator far more than the poles (same energy,
-concentrated at a steep sun angle vs. spread thin at a shallow one), and a
-single convective loop forms per hemisphere — drawn as one big ribbon
-hugging each side of the globe's limb, rising at the equator and sinking at
-the pole, exactly Hadley's original 1735 model. A few seconds in, Earth's
-rotation "switches on": the Coriolis force deflects the flow and tears that
-one loop into three smaller cells — Hadley (0–30°), the reversed, indirect
-Ferrel cell (30–60°), and the Polar cell (60–90°) — cross-fading into the
-familiar three-cell globe diagram, with latitude rings, four pressure
-badges (equatorial low / ITCZ, subtropical high, subpolar low, polar high)
-and a Passat / Westwind / Polarer-Ostwind legend fading in as the cells
-settle into their steady state, which then keeps circulating indefinitely —
-this is a one-way build-up, not a day/night-style cycle, since the real
-circulation never switches its rotation off. **Reset** returns to a calm,
-pre-sunrise start.
+1. **Die Sonne — why the equator is warm and the poles are cold.** Two
+   equally wide sunbeams (same amount of light) hit Earth, one at the equator
+   and one at a latitude chosen with a slider. A close-up of the ground,
+   split into equal tiles, shows the slanted beam spreading the same light
+   over more tiles, so each tile gets less energy (∝ sin of the sun's
+   elevation).
+2. **Die Erddrehung — what the Coriolis force does.** A ball thrown across a
+   turning merry-go-round, shown side by side from space (it flies straight)
+   and from the rider's point of view (it curves right, or left on a
+   clockwise disc). A second scenario swaps the carousel for Earth seen from
+   above the pole: air sent from 30° towards the equator is deflected west
+   (→ north-east trade wind), air sent towards the pole is deflected east
+   (→ westerlies). The Earth version integrates f = 2Ω·sin(latitude), so the
+   deflection is strongest near the pole and zero at the equator.
+3. **Alles zusammen — the full circulation**, in five guided steps on a
+   pseudo-3D globe: uneven heating → one big Hadley cell (no rotation) →
+   rotation splits it into Hadley, Ferrel and Polar cells → pressure belts
+   (ITCZ, subtropical highs, subpolar lows, polar highs) → surface wind
+   belts (trades, westerlies, polar easterlies). Each step has its own
+   caption below the globe, and every layer fades in smoothly.
 
-- Pure client-side canvas + JavaScript — no build step, no server, no
-  libraries (no WebGL/three.js either), no dependencies beyond a Google
-  Fonts stylesheet. The "3D" globe is a hand-rolled orthographic projection
-  on a plain 2D canvas: a latitude circle projects to a horizontal chord at
-  y = R·sin(latitude), which is the one formula the whole scene is built on
-  (sphere shading, climate-zone bands, and the tubes all reuse it).
-- Physics: each latitude band's circulation is a closed loop — surface
-  branch hugging the sphere's edge, aloft branch bulging outward, joined by
-  two smooth caps — whose rotational sense (direct/equatorward-surface for
-  Hadley and Polar, indirect/poleward-surface for Ferrel) was derived
-  analytically and cross-checked against a Python streamplot of the
-  equivalent flat-earth version before being carried over. Particles ride
-  that loop directly (not a 2D vector field), so there's no risk of mass
-  piling up anywhere. The single-cell and three-cell tube sets both exist
-  and animate at all times; only their drawn opacity cross-fades as
-  rotation ramps in, which is a simpler and equally smooth way to dissolve
-  one cell structure into the other than morphing geometry.
-- The globe's face is banded through the actual climate zones this
-  circulation produces — tropical, temperate, polar — as a small payoff
-  connecting the abstract cells at the limb to the real world on the
-  surface.
-- Design: SCAPE° corporate design (Archivo, thick ink borders, poster-hero
-  layout), mobile-first and optimized for touch — matching the sibling
-  `landwind_simulation` and `chaotic_pendel` projects.
+## Readability
 
-Open `index.html` directly, or serve the folder with any static file server.
+- Canvas text is never smaller than 13 px at 100 % zoom and always has a
+  white halo or box behind it. Each simulation has a separate layout for
+  narrow (phone) and wide screens, so labels don't overlap.
+- **Every simulation window can be zoomed and panned**: +/− buttons,
+  Ctrl/⌘ + mouse wheel, double-click, or a two-finger pinch. Once zoomed
+  in, drag to pan. There is also a fullscreen button. The zoom is a canvas
+  transform, so text and lines stay sharp.
+
+## Files
+
+- `index.html`: page structure and all explanatory text
+- `style.css`: SCAPE° corporate design (Archivo, thick ink borders, poster hero)
+- `js/common.js`: shared helpers and the zoomable canvas stage
+- `js/sim-sun.js`, `js/sim-coriolis.js`, `js/sim-circulation.js`: the three simulations
+- `js/app.js`: chapter tabs and the animation loop (only the visible simulation runs)
+
+Pure client-side canvas and JavaScript. No build step, no libraries, no
+dependencies apart from a Google Fonts stylesheet. Open `index.html`
+directly, or serve the folder with any static file server.
