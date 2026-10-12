@@ -203,7 +203,7 @@
     var fa = Math.PI / 2 + angle;
     var f = this.toScreen(P, { x: 0.92 * Math.cos(fa), y: 0.92 * Math.sin(fa) });
     ctx.save();
-    ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(17,17,17,0.55)';
+    ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.strokeStyle = S.rgba(C.ink, 0.55);
     ctx.beginPath(); ctx.moveTo(P.cx, P.cy); ctx.lineTo(f.x, f.y); ctx.stroke();
     ctx.restore();
 
@@ -216,21 +216,21 @@
     // thrower in the middle
     ctx.beginPath(); ctx.arc(P.cx, P.cy, 14, 0, Math.PI * 2);
     ctx.fillStyle = C.ink; ctx.fill();
-    S.label(ctx, 'Du', P.cx, P.cy + 1, { size: 13, align: 'center', color: '#fff', halo: false });
+    S.label(ctx, 'Du', P.cx, P.cy + 1, { size: 13, align: 'center', color: C.paper, halo: false });
   };
 
   CoriolisSim.prototype.drawEarth = function (ctx, P, showRotation) {
     var nh = this.dir > 0;
     ctx.beginPath(); ctx.arc(P.cx, P.cy, P.Rd, 0, Math.PI * 2);
     var g = ctx.createRadialGradient(P.cx, P.cy, 0, P.cx, P.cy, P.Rd);
-    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0, C.paper);
     g.addColorStop(0.35, C.pastelBlue);
-    g.addColorStop(1, '#9fd0ea');
+    g.addColorStop(1, C.sea);
     ctx.fillStyle = g; ctx.fill();
     ctx.lineWidth = 3; ctx.strokeStyle = C.ink; ctx.stroke();
 
     ctx.save();
-    ctx.setLineDash([3, 6]); ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(17,17,17,0.55)';
+    ctx.setLineDash([3, 6]); ctx.lineWidth = 1.6; ctx.strokeStyle = S.rgba(C.ink, 0.55);
     [1 / 3, 2 / 3].forEach(function (r) { ctx.beginPath(); ctx.arc(P.cx, P.cy, r * P.Rd, 0, Math.PI * 2); ctx.stroke(); });
     ctx.restore();
 
@@ -254,11 +254,11 @@
     var endR = this.earthDir === 'aequator' ? 1 : 1 / 3 + 0.02;
     var en = this.toScreen(P, { x: 0, y: endR });
     ctx.save();
-    ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(17,17,17,0.5)';
+    ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.strokeStyle = S.rgba(C.ink, 0.5);
     ctx.beginPath(); ctx.moveTo(st.x, st.y); ctx.lineTo(en.x, en.y); ctx.stroke();
     ctx.restore();
     ctx.beginPath(); ctx.arc(st.x, st.y, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke();
+    ctx.fillStyle = C.paper; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke();
   };
 
   CoriolisSim.prototype.drawTrail = function (ctx, P, trail, head, col) {
@@ -277,13 +277,13 @@
   };
 
   CoriolisSim.prototype.draw = function (ctx) {
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = C.paper;
     ctx.fillRect(0, 0, this.W, this.H);
     var P0 = this.panels[0], P1 = this.panels[1], s = this.shot;
     var side = this.dir > 0 ? 'rechts' : 'links';
 
     this.panels.forEach(function (P, i) {
-      ctx.fillStyle = i === 0 ? '#f4f9fc' : '#fffbea';
+      ctx.fillStyle = i === 0 ? C.panelA : C.panelB;
       ctx.fillRect(P.x, P.y, P.w, P.h);
       ctx.lineWidth = 2; ctx.strokeStyle = C.ink;
       ctx.strokeRect(P.x, P.y, P.w, P.h);

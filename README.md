@@ -38,11 +38,18 @@ that each add one idea:
 ## Files
 
 - `index.html`: page structure and all explanatory text
-- `style.css`: SCAPE° corporate design (Archivo, thick ink borders, poster hero)
+- `style.css`: layout and components (uses only variables from `theme/theme.css`)
+- `theme/`: the design – font, palette, wordmark, brand texts and every colour the simulations draw with (`theme.js`, `THEME.circulation`). To ship the explainer in another design, edit `theme/` only (see `theme/README.md`)
 - `js/common.js`: shared helpers and the zoomable canvas stage
 - `js/sim-sun.js`, `js/sim-coriolis.js`, `js/sim-circulation.js`: the three simulations
 - `js/app.js`: chapter tabs and the animation loop (only the visible simulation runs)
 
 Pure client-side canvas and JavaScript. No build step, no libraries, no
-dependencies apart from a Google Fonts stylesheet. Open `index.html`
+external dependencies (no web fonts are loaded from the internet).
+
+## Layout
+
+On a phone everything stacks. In the desktop view each experiment puts the
+simulation on the left (it stays in view while you scroll) and the question,
+instructions, controls and live result in a column to its right. Open `index.html`
 directly, or serve the folder with any static file server.

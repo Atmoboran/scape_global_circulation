@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>SCAPE° – Die Windgürtel der Erde</title>
-<meta name="description" content="Drei Experimente, die zeigen, wie die großen Winde der Erde entstehen: ungleiche Erwärmung durch die Sonne, die Corioliskraft und die globale Zirkulation mit Passat, Westwinden und Polaren Ostwinden. Ein SCAPE°-Projekt." />
-<meta name="theme-color" content="#f2e2c0" />
+<title>Die Windgürtel der Erde</title>
+<meta name="description" content="Drei Experimente, die zeigen, wie die großen Winde der Erde entstehen: ungleiche Erwärmung durch die Sonne, die Corioliskraft und die globale Zirkulation mit Passat, Westwinden und Polaren Ostwinden." />
 <script>
   (function () {
     var mode;
@@ -19,19 +18,14 @@
     document.documentElement.setAttribute("data-view", mode);
   })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme/theme.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="wrap">
   <header class="topbar">
-    <div class="wordmark">
-      <span class="word">SCAPE°</span>
-      <span class="sub">Wetter, Klima, Mensch</span>
-    </div>
+    <span class="logo" data-brand="logo"></span>
     <button id="view-toggle" type="button"></button>
   </header>
 
@@ -84,31 +78,37 @@
     <section class="chapter" id="ch-sonne" data-ch="sonne" role="tabpanel">
       <p class="kicker">Experiment 1 von 3 · Zutat Nr. 1</p>
       <h2>Warum ist es am Äquator heiß und an den Polen kalt?</h2>
-      <p class="question">
-        Die Sonne scheint auf die ganze Erde. Trotzdem ist es am Äquator das ganze Jahr über heiß, und an den Polen liegt Eis.
-        Dabei ist der Äquator der Sonne kaum näher als der Nordpol. Woran liegt es also?
-      </p>
-      <p class="howto">
-        <b>So geht's:</b> Die beiden Lichtstrahlen <b class="c-red">A</b> und <b class="c-cyan">B</b> sind gleich breit und bringen gleich viel Licht
-        (gelbe Punkte). Strahl <b class="c-red">A</b> trifft den Äquator. Schiebe den Regler, um Strahl <b class="c-cyan">B</b> weiter nach Norden zu schicken.
-        Unten siehst du den Boden in der Nahaufnahme, aufgeteilt in gleich große Kacheln.
-      </p>
-
-      <div class="stage-card" id="sun-card">
-        <div class="stage"><canvas aria-label="Simulation: Sonnenlicht trifft am Äquator steil und am Pol flach auf"></canvas></div>
-      </div>
-
-      <div class="controls">
-        <div class="control">
-          <label for="lat-slider" class="control-label">Wo trifft Strahl B auf? <b id="lat-value" class="c-cyan">50° Nord</b></label>
-          <input type="range" id="lat-slider" min="20" max="70" step="1" value="50">
-          <div class="seg presets" id="sun-presets">
-            <button type="button" data-lat="23">23° – Sahara</button>
-            <button type="button" data-lat="50">50° – Deutschland</button>
-            <button type="button" data-lat="70">70° – Nordkap</button>
+      <div class="lab">
+        <div class="lab-setup">
+          <p class="question">
+            Die Sonne scheint auf die ganze Erde. Trotzdem ist es am Äquator das ganze Jahr über heiß, und an den Polen liegt Eis.
+            Dabei ist der Äquator der Sonne kaum näher als der Nordpol. Woran liegt es also?
+          </p>
+          <p class="howto">
+            <b>So geht's:</b> Die beiden Lichtstrahlen <b class="c-red">A</b> und <b class="c-cyan">B</b> sind gleich breit und bringen gleich viel Licht
+            (gelbe Punkte). Strahl <b class="c-red">A</b> trifft den Äquator. Schiebe den Regler, um Strahl <b class="c-cyan">B</b> weiter nach Norden zu schicken.
+            Unten siehst du den Boden in der Nahaufnahme, aufgeteilt in gleich große Kacheln.
+          </p>
+        </div>
+        <div class="lab-stage">
+          <div class="stage-card" id="sun-card">
+            <div class="stage"><canvas aria-label="Simulation: Sonnenlicht trifft am Äquator steil und am Pol flach auf"></canvas></div>
           </div>
         </div>
-        <p class="live-result" id="sun-result" aria-live="polite"></p>
+        <div class="lab-run">
+          <div class="controls">
+            <div class="control">
+              <label for="lat-slider" class="control-label">Wo trifft Strahl B auf? <b id="lat-value" class="c-cyan">50° Nord</b></label>
+              <input type="range" id="lat-slider" min="20" max="70" step="1" value="50">
+              <div class="seg presets" id="sun-presets">
+                <button type="button" data-lat="23">23° – Sahara</button>
+                <button type="button" data-lat="50">50° – Deutschland</button>
+                <button type="button" data-lat="70">70° – Nordkap</button>
+              </div>
+            </div>
+            <p class="live-result" id="sun-result" aria-live="polite"></p>
+          </div>
+        </div>
       </div>
 
       <div class="explain">
@@ -131,51 +131,57 @@
     <section class="chapter" id="ch-coriolis" data-ch="coriolis" role="tabpanel">
       <p class="kicker">Experiment 2 von 3 · Zutat Nr. 2</p>
       <h2>Was macht die Corioliskraft?</h2>
-      <p class="question">
-        Wind ist Luft, die von einem Ort zum anderen strömt. Man könnte meinen, sie strömt einfach geradeaus.
-        Aber die Erde unter ihr dreht sich. Was bedeutet das für den Wind?
-      </p>
-      <p class="howto">
-        <b>So geht's:</b> Stell dir ein Karussell vor. Du stehst in der Mitte und wirfst einem Freund am Rand einen Ball zu.
-        Drücke auf <b>„Ball werfen“</b>. Das erste Bild zeigt den Wurf von oben aus dem Weltall, das zweite so, wie du ihn auf dem Karussell erlebst.
-        Danach kannst du dasselbe mit der <b>Erde</b> ausprobieren.
-      </p>
-
-      <div class="stage-card" id="cor-card">
-        <div class="stage"><canvas aria-label="Simulation: Ball auf einem drehenden Karussell, von außen und von innen gesehen"></canvas></div>
-      </div>
-
-      <div class="controls">
-        <div class="control">
-          <span class="control-label">Was soll sich drehen?</span>
-          <div class="seg" id="cor-mode">
-            <button type="button" data-value="karussell" aria-pressed="true">Ein Karussell</button>
-            <button type="button" data-value="erde" aria-pressed="false">Die Erde (Blick von oben auf den Pol)</button>
+      <div class="lab">
+        <div class="lab-setup">
+          <p class="question">
+            Wind ist Luft, die von einem Ort zum anderen strömt. Man könnte meinen, sie strömt einfach geradeaus.
+            Aber die Erde unter ihr dreht sich. Was bedeutet das für den Wind?
+          </p>
+          <p class="howto">
+            <b>So geht's:</b> Stell dir ein Karussell vor. Du stehst in der Mitte und wirfst einem Freund am Rand einen Ball zu.
+            Drücke auf <b>„Ball werfen“</b>. Das erste Bild zeigt den Wurf von oben aus dem Weltall, das zweite so, wie du ihn auf dem Karussell erlebst.
+            Danach kannst du dasselbe mit der <b>Erde</b> ausprobieren.
+          </p>
+        </div>
+        <div class="lab-stage">
+          <div class="stage-card" id="cor-card">
+            <div class="stage"><canvas aria-label="Simulation: Ball auf einem drehenden Karussell, von außen und von innen gesehen"></canvas></div>
           </div>
         </div>
-        <button type="button" class="btn-primary" id="cor-throw">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
-          <span id="cor-throw-label">Ball werfen</span>
-        </button>
-        <div class="control" id="cor-earthdir-row" hidden>
-          <span class="control-label">Wohin soll die Luft strömen? (Start bei 30° Nord)</span>
-          <div class="seg" id="cor-earthdir">
-            <button type="button" data-value="aequator" aria-pressed="true">Richtung Äquator</button>
-            <button type="button" data-value="pol" aria-pressed="false">Richtung Pol</button>
+        <div class="lab-run">
+          <div class="controls">
+            <div class="control">
+              <span class="control-label">Was soll sich drehen?</span>
+              <div class="seg" id="cor-mode">
+                <button type="button" data-value="karussell" aria-pressed="true">Ein Karussell</button>
+                <button type="button" data-value="erde" aria-pressed="false">Die Erde (Blick von oben auf den Pol)</button>
+              </div>
+            </div>
+            <button type="button" class="btn-primary" id="cor-throw">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
+              <span id="cor-throw-label">Ball werfen</span>
+            </button>
+            <div class="control" id="cor-earthdir-row" hidden>
+              <span class="control-label">Wohin soll die Luft strömen? (Start bei 30° Nord)</span>
+              <div class="seg" id="cor-earthdir">
+                <button type="button" data-value="aequator" aria-pressed="true">Richtung Äquator</button>
+                <button type="button" data-value="pol" aria-pressed="false">Richtung Pol</button>
+              </div>
+            </div>
+            <div class="control">
+              <label for="cor-speed" class="control-label">Drehgeschwindigkeit: <b id="cor-speed-value">mittel</b></label>
+              <input type="range" id="cor-speed" min="0" max="10" step="1" value="5">
+            </div>
+            <div class="control">
+              <span class="control-label" id="cor-dir-label">Drehrichtung</span>
+              <div class="seg" id="cor-hemi">
+                <button type="button" data-value="1" aria-pressed="true">gegen den Uhrzeigersinn (wie die Nordhalbkugel)</button>
+                <button type="button" data-value="-1" aria-pressed="false">im Uhrzeigersinn (wie die Südhalbkugel)</button>
+              </div>
+            </div>
+            <p class="live-result" id="cor-result" aria-live="polite"></p>
           </div>
         </div>
-        <div class="control">
-          <label for="cor-speed" class="control-label">Drehgeschwindigkeit: <b id="cor-speed-value">mittel</b></label>
-          <input type="range" id="cor-speed" min="0" max="10" step="1" value="5">
-        </div>
-        <div class="control">
-          <span class="control-label" id="cor-dir-label">Drehrichtung</span>
-          <div class="seg" id="cor-hemi">
-            <button type="button" data-value="1" aria-pressed="true">gegen den Uhrzeigersinn (wie die Nordhalbkugel)</button>
-            <button type="button" data-value="-1" aria-pressed="false">im Uhrzeigersinn (wie die Südhalbkugel)</button>
-          </div>
-        </div>
-        <p class="live-result" id="cor-result" aria-live="polite"></p>
       </div>
 
       <div class="explain">
@@ -199,78 +205,83 @@
     <section class="chapter" id="ch-zirkulation" data-ch="zirkulation" role="tabpanel">
       <p class="kicker">Experiment 3 von 3 · Alles zusammen</p>
       <h2>Wie entstehen die Windgürtel der Erde?</h2>
-      <p class="question">
-        Jetzt kombinieren wir beide Zutaten: <b>ungleiche Erwärmung</b> (Experiment 1) und <b>Erddrehung</b> (Experiment 2).
-        Geh Schritt für Schritt durch und schau zu, wie daraus die großen Luftkreisläufe und Windgürtel entstehen.
-      </p>
-
-      <ol class="stepper" id="circ-steps" aria-label="Schritte">
-        <li><button type="button">1 · Sonne heizt</button></li>
-        <li><button type="button">2 · Ein Kreislauf</button></li>
-        <li><button type="button">3 · Erde dreht sich</button></li>
-        <li><button type="button">4 · Hoch &amp; Tief</button></li>
-        <li><button type="button">5 · Windgürtel</button></li>
-      </ol>
-
-      <div class="stage-card" id="circ-card">
-        <div class="stage"><canvas aria-label="Simulation: Globus mit den drei Zirkulationszellen je Halbkugel und den Bodenwinden"></canvas></div>
-      </div>
-
-      <div class="step-nav">
-        <button type="button" class="btn" id="circ-prev">← Zurück</button>
-        <span id="circ-counter" class="step-counter">Schritt 1 von 5</span>
-        <button type="button" class="btn btn-go" id="circ-next">Weiter →</button>
-      </div>
-
-      <div id="circ-captions" aria-live="polite">
-        <div class="step-caption">
-          <h3>1 · Die Sonne heizt ungleich</h3>
-          <p>Wie in Experiment 1: Am Äquator wird es warm, an den Polen bleibt es kalt (die Farben auf dem Globus).</p>
-          <p>Die <b>warme Luft am Äquator</b> ist leicht und steigt auf. Am Boden fehlt dann Luft, der Luftdruck sinkt: ein <b class="c-red">Tiefdruckgebiet (T)</b>.
-          Die <b>kalte Luft an den Polen</b> ist schwer und sinkt ab. Dort drückt mehr Luft auf den Boden: ein <b class="c-navy">Hochdruckgebiet (H)</b>.</p>
+      <div class="lab">
+        <div class="lab-setup">
+          <p class="question">
+            Jetzt kombinieren wir beide Zutaten: <b>ungleiche Erwärmung</b> (Experiment 1) und <b>Erddrehung</b> (Experiment 2).
+            Geh Schritt für Schritt durch und schau zu, wie daraus die großen Luftkreisläufe und Windgürtel entstehen.
+          </p>
+          <ol class="stepper" id="circ-steps" aria-label="Schritte">
+            <li><button type="button">1 · Sonne heizt</button></li>
+            <li><button type="button">2 · Ein Kreislauf</button></li>
+            <li><button type="button">3 · Erde dreht sich</button></li>
+            <li><button type="button">4 · Hoch &amp; Tief</button></li>
+            <li><button type="button">5 · Windgürtel</button></li>
+          </ol>
         </div>
-        <div class="step-caption" hidden>
-          <h3>2 · Ohne Erddrehung: ein großer Kreislauf</h3>
-          <p>Würde sich die Erde nicht drehen, gäbe es auf jeder Halbkugel <b>nur einen einzigen Kreislauf</b> (rechts am Globus):
-          Die Luft steigt am Äquator auf, strömt hoch oben zum Pol, sinkt dort ab und fließt am Boden zurück zum Äquator.</p>
-          <p>Die weißen Pfeile zeigen den Wind am Boden: überall <b>geradewegs zum Äquator</b>. So stellte man sich das schon vor fast 300 Jahren vor.</p>
+        <div class="lab-stage">
+          <div class="stage-card" id="circ-card">
+            <div class="stage"><canvas aria-label="Simulation: Globus mit den drei Zirkulationszellen je Halbkugel und den Bodenwinden"></canvas></div>
+          </div>
         </div>
-        <div class="step-caption" hidden>
-          <h3>3 · Die Erde dreht sich: aus einem Kreislauf werden drei</h3>
-          <p>Jetzt kommt die <b>Corioliskraft</b> aus Experiment 2 dazu. Die Luft, die hoch oben vom Äquator Richtung Pol strömt, wird immer stärker nach Osten abgelenkt.
-          Bei etwa <b>30° Breite</b> kommt sie kaum noch weiter nach Norden, staut sich und sinkt ab.</p>
-          <p>So zerfällt der große Kreislauf in <b>drei kleinere Zellen</b> pro Halbkugel:
-          die <b class="c-rust">Hadley-Zelle</b> (0–30°), die <b class="c-cyan">Ferrel-Zelle</b> (30–60°, sie dreht andersherum) und die <b class="c-navy">Polarzelle</b> (60–90°).
-          Auch die Bodenwinde (weiße Pfeile) werden jetzt abgelenkt.</p>
-        </div>
-        <div class="step-caption" hidden>
-          <h3>4 · Hoch- und Tiefdruckgürtel</h3>
-          <p>Wo Luft <b>aufsteigt</b>, entsteht am Boden ein <b class="c-red">Tief (T)</b>. Aufsteigende Luft kühlt ab, es bilden sich Wolken und Regen.
-          Wo Luft <b>absinkt</b>, entsteht ein <b class="c-navy">Hoch (H)</b>. Absinkende Luft erwärmt sich, Wolken lösen sich auf, es bleibt trocken.</p>
-          <ul>
-            <li><b class="c-red">T am Äquator</b> („ITCZ“): jeden Tag Gewitter – hier wächst der tropische Regenwald.</li>
-            <li><b class="c-navy">H bei 30°</b>: trockene, absinkende Luft – hier liegen die großen Wüsten wie die Sahara.</li>
-            <li><b class="c-red">T bei 60°</b>: hier bilden sich immer wieder Tiefdruckgebiete – wechselhaftes Wetter wie in Deutschland.</li>
-            <li><b class="c-navy">H am Pol</b>: kalte, schwere, absinkende Luft.</li>
-          </ul>
-        </div>
-        <div class="step-caption" hidden>
-          <h3>5 · Die Windgürtel</h3>
-          <p>Am Boden strömt die Luft immer <b>vom Hoch zum Tief</b>, und die Corioliskraft lenkt sie dabei ab (Nordhalbkugel nach rechts, Südhalbkugel nach links). So entstehen drei Windgürtel je Halbkugel:</p>
-          <ul>
-            <li><b>Passat</b> (0–30°): weht vom Hoch bei 30° zum Äquator und kommt aus Nordosten bzw. Südosten. Seefahrer nutzten ihn früher, um über den Atlantik zu segeln.</li>
-            <li><b>Westwinde</b> (30–60°): wehen vom Hoch bei 30° zum Tief bei 60° und kommen aus Westen. <b>Deutschland liegt in dieser Zone</b> – deshalb kommt unser Wetter meistens vom Atlantik im Westen.</li>
-            <li><b>Polare Ostwinde</b> (60–90°): kalte Luft strömt vom Polarhoch weg und kommt aus Osten.</li>
-          </ul>
+        <div class="lab-run">
+          <div class="step-nav">
+            <button type="button" class="btn" id="circ-prev">← Zurück</button>
+            <span id="circ-counter" class="step-counter">Schritt 1 von 5</span>
+            <button type="button" class="btn btn-go" id="circ-next">Weiter →</button>
+          </div>
+
+          <div id="circ-captions" aria-live="polite">
+            <div class="step-caption">
+              <h3>1 · Die Sonne heizt ungleich</h3>
+              <p>Wie in Experiment 1: Am Äquator wird es warm, an den Polen bleibt es kalt (die Farben auf dem Globus).</p>
+              <p>Die <b>warme Luft am Äquator</b> ist leicht und steigt auf. Am Boden fehlt dann Luft, der Luftdruck sinkt: ein <b class="c-red">Tiefdruckgebiet (T)</b>.
+              Die <b>kalte Luft an den Polen</b> ist schwer und sinkt ab. Dort drückt mehr Luft auf den Boden: ein <b class="c-navy">Hochdruckgebiet (H)</b>.</p>
+            </div>
+            <div class="step-caption" hidden>
+              <h3>2 · Ohne Erddrehung: ein großer Kreislauf</h3>
+              <p>Würde sich die Erde nicht drehen, gäbe es auf jeder Halbkugel <b>nur einen einzigen Kreislauf</b> (rechts am Globus):
+              Die Luft steigt am Äquator auf, strömt hoch oben zum Pol, sinkt dort ab und fließt am Boden zurück zum Äquator.</p>
+              <p>Die weißen Pfeile zeigen den Wind am Boden: überall <b>geradewegs zum Äquator</b>. So stellte man sich das schon vor fast 300 Jahren vor.</p>
+            </div>
+            <div class="step-caption" hidden>
+              <h3>3 · Die Erde dreht sich: aus einem Kreislauf werden drei</h3>
+              <p>Jetzt kommt die <b>Corioliskraft</b> aus Experiment 2 dazu. Die Luft, die hoch oben vom Äquator Richtung Pol strömt, wird immer stärker nach Osten abgelenkt.
+              Bei etwa <b>30° Breite</b> kommt sie kaum noch weiter nach Norden, staut sich und sinkt ab.</p>
+              <p>So zerfällt der große Kreislauf in <b>drei kleinere Zellen</b> pro Halbkugel:
+              die <b class="c-rust">Hadley-Zelle</b> (0–30°), die <b class="c-cyan">Ferrel-Zelle</b> (30–60°, sie dreht andersherum) und die <b class="c-navy">Polarzelle</b> (60–90°).
+              Auch die Bodenwinde (weiße Pfeile) werden jetzt abgelenkt.</p>
+            </div>
+            <div class="step-caption" hidden>
+              <h3>4 · Hoch- und Tiefdruckgürtel</h3>
+              <p>Wo Luft <b>aufsteigt</b>, entsteht am Boden ein <b class="c-red">Tief (T)</b>. Aufsteigende Luft kühlt ab, es bilden sich Wolken und Regen.
+              Wo Luft <b>absinkt</b>, entsteht ein <b class="c-navy">Hoch (H)</b>. Absinkende Luft erwärmt sich, Wolken lösen sich auf, es bleibt trocken.</p>
+              <ul>
+                <li><b class="c-red">T am Äquator</b> („ITCZ“): jeden Tag Gewitter – hier wächst der tropische Regenwald.</li>
+                <li><b class="c-navy">H bei 30°</b>: trockene, absinkende Luft – hier liegen die großen Wüsten wie die Sahara.</li>
+                <li><b class="c-red">T bei 60°</b>: hier bilden sich immer wieder Tiefdruckgebiete – wechselhaftes Wetter wie in Deutschland.</li>
+                <li><b class="c-navy">H am Pol</b>: kalte, schwere, absinkende Luft.</li>
+              </ul>
+            </div>
+            <div class="step-caption" hidden>
+              <h3>5 · Die Windgürtel</h3>
+              <p>Am Boden strömt die Luft immer <b>vom Hoch zum Tief</b>, und die Corioliskraft lenkt sie dabei ab (Nordhalbkugel nach rechts, Südhalbkugel nach links). So entstehen drei Windgürtel je Halbkugel:</p>
+              <ul>
+                <li><b>Passat</b> (0–30°): weht vom Hoch bei 30° zum Äquator und kommt aus Nordosten bzw. Südosten. Seefahrer nutzten ihn früher, um über den Atlantik zu segeln.</li>
+                <li><b>Westwinde</b> (30–60°): wehen vom Hoch bei 30° zum Tief bei 60° und kommen aus Westen. <b>Deutschland liegt in dieser Zone</b> – deshalb kommt unser Wetter meistens vom Atlantik im Westen.</li>
+                <li><b>Polare Ostwinde</b> (60–90°): kalte Luft strömt vom Polarhoch weg und kommt aus Osten.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="legend">
         <h3>Legende</h3>
         <div class="legend-grid">
-          <div><span class="sw" style="background:rgba(198,90,42,.45)"></span><span><b>Hadley-Zelle</b> (0–30°)</span></div>
-          <div><span class="sw" style="background:rgba(16,147,196,.45)"></span><span><b>Ferrel-Zelle</b> (30–60°)</span></div>
-          <div><span class="sw" style="background:rgba(40,52,143,.45)"></span><span><b>Polarzelle</b> (60–90°)</span></div>
+          <div><span class="sw" style="background:var(--hadley)"></span><span><b>Hadley-Zelle</b> (0–30°)</span></div>
+          <div><span class="sw" style="background:var(--ferrel)"></span><span><b>Ferrel-Zelle</b> (30–60°)</span></div>
+          <div><span class="sw" style="background:var(--polar)"></span><span><b>Polarzelle</b> (60–90°)</span></div>
           <div><span class="badge c-red">T</span><span><b>Tiefdruck</b>: Luft steigt auf, Wolken und Regen</span></div>
           <div><span class="badge c-navy">H</span><span><b>Hochdruck</b>: Luft sinkt ab, trocken</span></div>
           <div><span class="arrow-key" aria-hidden="true">➜</span><span><b>Weiße Pfeile</b>: Wind am Boden</span></div>
@@ -287,10 +298,12 @@
   </main>
 
   <footer class="brand-footer">
-    Wetter, Klima, Wandel.<br>Wir erklären es. – SCAPE°
+    <span data-brand="claim"></span><br><span data-brand="name"></span>
   </footer>
 </div>
 
+<script src="theme/theme.js"></script>
+<script src="js/brand.js"></script>
 <script src="js/common.js"></script>
 <script src="js/sim-sun.js"></script>
 <script src="js/sim-coriolis.js"></script>

@@ -29,19 +29,15 @@
     return 'rgb(' + Math.round(S.lerp(a.r, b.r, t)) + ',' + Math.round(S.lerp(a.g, b.g, t)) + ',' + Math.round(S.lerp(a.b, b.b, t)) + ')';
   };
 
-  S.COLORS = {
-    ink: '#111111', paper: '#ffffff',
-    olive: '#6b6b23', mustard: '#d2a716', orange: '#ef8f2c', rust: '#c65a2a', red: '#df2a1e',
-    purple: '#4a2e83', green: '#00954f', cyan: '#1093c4', navy: '#28348f',
-    cream: '#f2e2c0', pastelYellow: '#f6ea79', yellow: '#ffe400', pastelBlue: '#cfe6f6',
-    lavender: '#dcd6f2', mint: '#4ab48a', sky: '#eaf6fb'
-  };
+  // Colours and typeface come from the theme (theme/theme.js).
+  S.COLORS = window.THEME.circulation;
 
   // ============ TEXT ============
   // Every canvas label goes through here so sizes stay consistent (never below 13px at 100 % zoom)
   // and every label gets a white halo, which keeps it readable on top of any background.
-  S.FONT = "'Archivo', 'Helvetica Neue', Arial, sans-serif";
-  S.font = function (size, weight) { return (weight || 700) + ' ' + size + 'px ' + S.FONT; };
+  S.FONT = window.THEME.font;
+  // Weights from the old 700/800/900 scale map onto the CD's light/regular/medium.
+  S.font = function (size, weight) { return ((weight || 700) >= 600 ? 500 : 400) + ' ' + size + 'px ' + S.FONT; };
 
   S.textWidth = function (ctx, text, size, weight) {
     ctx.save();
@@ -82,7 +78,7 @@
       ctx.fillStyle = 'rgba(255,255,255,0.92)';
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = o.boxStroke || '#111111';
+      ctx.strokeStyle = o.boxStroke || S.COLORS.ink;
       ctx.stroke();
     } else if (o.halo !== false) {
       ctx.lineJoin = 'round';
@@ -90,7 +86,7 @@
       ctx.strokeStyle = o.haloColor || 'rgba(255,255,255,0.92)';
       ctx.strokeText(text, x, y);
     }
-    ctx.fillStyle = o.color || '#111111';
+    ctx.fillStyle = o.color || S.COLORS.ink;
     ctx.fillText(text, x, y);
     ctx.restore();
   };

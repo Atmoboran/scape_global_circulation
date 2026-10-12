@@ -128,8 +128,8 @@
 
     // faint background rays
     ctx.save();
-    ctx.strokeStyle = 'rgba(210,167,22,0.45)';
-    ctx.fillStyle = 'rgba(210,167,22,0.45)';
+    ctx.strokeStyle = S.rgba(C.mustard, 0.45);
+    ctx.fillStyle = S.rgba(C.mustard, 0.45);
     ctx.lineWidth = 1.5;
     var step = Math.max(16, R * 0.2);
     for (var y = gy - R * 1.2; y <= gy + R * 1.2 + 0.1; y += step) {
@@ -142,26 +142,26 @@
 
     // atmosphere shell
     ctx.beginPath(); ctx.arc(gx, gy, R * 1.07, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(16,147,196,0.14)'; ctx.fill();
+    ctx.fillStyle = S.rgba(C.cyan, 0.14); ctx.fill();
 
     // globe: temperature colouring (warm equator, cold poles)
     ctx.save();
     ctx.beginPath(); ctx.arc(gx, gy, R, 0, Math.PI * 2); ctx.clip();
     var grad = ctx.createLinearGradient(0, gy - R, 0, gy + R);
-    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0, C.paper);
     grad.addColorStop(0.12, C.pastelBlue);
     grad.addColorStop(0.3, C.pastelYellow);
     grad.addColorStop(0.5, C.orange);
     grad.addColorStop(0.7, C.pastelYellow);
     grad.addColorStop(0.88, C.pastelBlue);
-    grad.addColorStop(1, '#ffffff');
+    grad.addColorStop(1, C.paper);
     ctx.fillStyle = grad;
     ctx.fillRect(gx - R, gy - R, 2 * R, 2 * R);
     // night side
-    ctx.fillStyle = 'rgba(17,17,40,0.42)';
+    ctx.fillStyle = S.rgba(C.ink, 0.42);
     ctx.fillRect(gx, gy - R, R, 2 * R);
     // latitude lines
-    ctx.strokeStyle = 'rgba(17,17,17,0.45)';
+    ctx.strokeStyle = S.rgba(C.ink, 0.45);
     ctx.lineWidth = 1.3;
     ctx.setLineDash([2, 5]);
     [0, 30, 60].forEach(function (lat) {
@@ -178,9 +178,9 @@
 
     // latitude labels on the night side
     var fs = R > 120 ? 14 : 13;
-    S.label(ctx, 'Äquator 0°', gx + R - 8, gy + 10, { size: fs, align: 'right', color: '#fff', halo: false });
-    S.label(ctx, '30°', gx + R * Math.cos(30 * S.DEG) - 8, gy - R * Math.sin(30 * S.DEG) + 10, { size: fs, align: 'right', color: '#fff', halo: false });
-    S.label(ctx, '60°', gx + R * Math.cos(60 * S.DEG) - 6, gy - R * Math.sin(60 * S.DEG) + 10, { size: fs, align: 'right', color: '#fff', halo: false });
+    S.label(ctx, 'Äquator 0°', gx + R - 8, gy + 10, { size: fs, align: 'right', color: C.paper, halo: false });
+    S.label(ctx, '30°', gx + R * Math.cos(30 * S.DEG) - 8, gy - R * Math.sin(30 * S.DEG) + 10, { size: fs, align: 'right', color: C.paper, halo: false });
+    S.label(ctx, '60°', gx + R * Math.cos(60 * S.DEG) - 6, gy - R * Math.sin(60 * S.DEG) + 10, { size: fs, align: 'right', color: C.paper, halo: false });
     S.label(ctx, 'Nordpol', gx, gy - R - 16, { size: 14, align: 'center' });
     S.label(ctx, 'Südpol', gx, gy + R + 16, { size: 14, align: 'center' });
 
@@ -205,12 +205,12 @@
       if (f.x > gx0 || f.y === undefined || f.onPatch) return;
       var k = f.age / 0.45;
       ctx.beginPath(); ctx.arc(f.x, f.y, 2 + k * 7, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(223,42,30,' + (1 - k) + ')'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.strokeStyle = S.rgba(C.red, (1 - k)); ctx.lineWidth = 1.5; ctx.stroke();
     });
 
     // sun
     ctx.beginPath(); ctx.arc(this.sx, this.sy, this.sunR * 1.6, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,228,0,0.35)'; ctx.fill();
+    ctx.fillStyle = S.rgba(C.yellow, 0.35); ctx.fill();
     ctx.beginPath(); ctx.arc(this.sx, this.sy, this.sunR, 0, Math.PI * 2);
     ctx.fillStyle = C.yellow; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = C.ink; ctx.stroke();
     S.label(ctx, 'Sonne', this.sx - this.sunR + 2, this.sy + this.sunR * 1.6 + 14, { size: 14 });
@@ -226,7 +226,7 @@
     for (k = 0; k <= N; k++) { yy = y1 + (y2 - y1) * k / N; ctx.lineTo(this.surfaceX(yy), yy); }
     ctx.lineTo(this.beamX0, y2);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255,228,0,0.55)';
+    ctx.fillStyle = S.rgba(C.yellow, 0.55);
     ctx.fill();
     ctx.lineWidth = 2;
     ctx.strokeStyle = col;
@@ -244,7 +244,7 @@
     var tx = this.beamX0 + 16, r = 11;
     ctx.beginPath(); ctx.arc(tx, yc, r, 0, Math.PI * 2);
     ctx.fillStyle = col; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = C.ink; ctx.stroke();
-    S.label(ctx, tag, tx, yc + 1, { size: 14, align: 'center', color: '#fff', halo: false });
+    S.label(ctx, tag, tx, yc + 1, { size: 14, align: 'center', color: C.paper, halo: false });
   };
 
   // ============ DRAW: close-up panels ============
@@ -252,7 +252,7 @@
     var g = this.patchGeom(i), P = g.P, col = i === 0 ? COL_A : COL_B;
 
     // frame
-    ctx.fillStyle = '#f7fbfe';
+    ctx.fillStyle = C.closeUp;
     ctx.fillRect(P.x, P.y, P.w, P.h);
     ctx.lineWidth = 3; ctx.strokeStyle = col;
     ctx.strokeRect(P.x + 1.5, P.y + 1.5, P.w - 3, P.h - 3);
@@ -271,7 +271,7 @@
     ctx.lineTo(g.x0 + g.L + g.dx * far, g.gl + g.dy * far);
     ctx.lineTo(g.x0 + g.dx * far, g.gl + g.dy * far);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255,228,0,0.5)'; ctx.fill();
+    ctx.fillStyle = S.rgba(C.yellow, 0.5); ctx.fill();
     ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke();
     // packets
     var len = (g.gl - g.top) / g.sinE;
@@ -286,7 +286,7 @@
 
     // ground tiles, each shaded by how much light it receives
     var tileH = 16, x, j;
-    ctx.fillStyle = '#d9c9a0';
+    ctx.fillStyle = C.ground;
     ctx.fillRect(P.x + 3, g.gl, P.w - 6, tileH);
     for (j = -1; ; j++) {
       x = g.x0 + j * g.t;
@@ -296,7 +296,7 @@
       var e = share * 2;                               // 1.0 == an equator tile
       var xa = Math.max(x, P.x + 3), xb = Math.min(x + g.t, P.x + P.w - 3);
       if (xb <= xa) continue;
-      ctx.fillStyle = e > 0.001 ? (e > 0.5 ? S.mix(C.yellow, C.red, (e - 0.5) * 2) : S.mix('#d9c9a0', C.yellow, e * 2)) : '#d9c9a0';
+      ctx.fillStyle = e > 0.001 ? (e > 0.5 ? S.mix(C.yellow, C.red, (e - 0.5) * 2) : S.mix(C.ground, C.yellow, e * 2)) : C.ground;
       ctx.fillRect(xa, g.gl, xb - xa, tileH);
       ctx.lineWidth = 1.5; ctx.strokeStyle = C.ink;
       ctx.strokeRect(xa, g.gl, xb - xa, tileH);
@@ -307,7 +307,7 @@
       if (f.onPatch !== i + 1) return;
       var k = f.age / 0.45;
       ctx.beginPath(); ctx.arc(f.x, f.y, 3 + k * 9, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(223,42,30,' + (1 - k) + ')'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = S.rgba(C.red, (1 - k)); ctx.lineWidth = 2; ctx.stroke();
     });
 
     // bracket over the lit stretch

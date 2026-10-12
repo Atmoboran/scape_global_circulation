@@ -155,7 +155,7 @@
       ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(a.x, a.y);
       ctx.lineWidth = 2.2; ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.stroke();
       ctx.beginPath(); ctx.arc(a.x, a.y, 2.6, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(17,17,17,0.6)'; ctx.stroke();
+      ctx.fillStyle = C.paper; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = S.rgba(C.ink, 0.6); ctx.stroke();
     });
     ctx.restore();
   };
@@ -183,8 +183,8 @@
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
     var g = ctx.createLinearGradient(0, cy - R, 0, cy + R);
-    var neutral = '#e9e4d6';
-    var stops = [[0, '#ffffff'], [0.1, C.pastelBlue], [0.28, C.pastelYellow], [0.5, C.orange], [0.72, C.pastelYellow], [0.9, C.pastelBlue], [1, '#ffffff']];
+    var neutral = C.neutral;
+    var stops = [[0, C.paper], [0.1, C.pastelBlue], [0.28, C.pastelYellow], [0.5, C.orange], [0.72, C.pastelYellow], [0.9, C.pastelBlue], [1, C.paper]];
     stops.forEach(function (s) { g.addColorStop(s[0], S.mix(neutral, s[1], h)); });
     ctx.fillStyle = g;
     ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
@@ -197,7 +197,7 @@
     ctx.fillRect(cx - R, cy - R, 2 * R, 2 * R);
 
     // latitude lines: equator always, 30°/60° once the three cells exist
-    ctx.strokeStyle = 'rgba(17,17,17,0.45)';
+    ctx.strokeStyle = S.rgba(C.ink, 0.45);
     ctx.lineWidth = 1.4;
     ctx.setLineDash([2, 5]);
     ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.stroke();
@@ -221,7 +221,7 @@
       var r = Math.max(5, R * 0.045);
       for (var lon = -70; lon <= 70; lon += 20) {
         var p = this.proj(0, lon);
-        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = 'rgba(17,17,17,0.35)'; ctx.lineWidth = 1;
+        ctx.fillStyle = C.paper; ctx.strokeStyle = S.rgba(C.ink, 0.35); ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(p.x - r * 0.8, p.y + r * 0.2, r * 0.75, 0, Math.PI * 2);
         ctx.arc(p.x, p.y - r * 0.2, r, 0, Math.PI * 2);
@@ -263,11 +263,11 @@
       ctx.globalAlpha = a * fade;
       ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(tail.x, tail.y); ctx.lineTo(head.x, head.y);
-      ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(17,17,17,0.8)'; ctx.stroke();
-      ctx.lineWidth = 2.5; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+      ctx.lineWidth = 5; ctx.strokeStyle = S.rgba(C.ink, 0.8); ctx.stroke();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = C.paper; ctx.stroke();
       S.arrowHead(ctx, head.x + Math.cos(ang) * 2, head.y + Math.sin(ang) * 2, ang, sz);
-      ctx.fillStyle = '#ffffff'; ctx.fill();
-      ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(17,17,17,0.8)'; ctx.stroke();
+      ctx.fillStyle = C.paper; ctx.fill();
+      ctx.lineWidth = 1.5; ctx.strokeStyle = S.rgba(C.ink, 0.8); ctx.stroke();
     });
     ctx.restore();
   };
@@ -279,7 +279,7 @@
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff'; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = C.ink; ctx.stroke();
+    ctx.fillStyle = C.paper; ctx.fill(); ctx.lineWidth = 2.5; ctx.strokeStyle = C.ink; ctx.stroke();
     ctx.restore();
     S.label(ctx, letter, x, y + 1, { size: Math.round(r * 1.2), align: 'center', color: letter === 'T' ? C.red : C.navy, halo: false, alpha: alpha });
   };
