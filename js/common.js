@@ -1,80 +1,87 @@
-// Shared helpers for all three simulations: math, readable canvas text, and the zoomable
-// canvas stage (buttons, Ctrl+wheel, pinch, drag-to-pan, fullscreen).
-(function () {
+// Shared helpers for all three simulations: math, readable canvas text, and the
+// zoomable canvas stage (Ctrl + mouse wheel, two-finger pinch, drag to pan when
+// zoomed in). The fullscreen button comes from the kit (js/kit.js).
+(() => {
   'use strict';
 
-  var S = window.SCAPE = window.SCAPE || {};
+  const S = (window.SCAPE = window.SCAPE || {});
 
   // ============ MATH ============
-  S.clamp = function (v, lo, hi) { return Math.min(hi, Math.max(lo, v)); };
-  S.clamp01 = function (v) { return Math.min(1, Math.max(0, v)); };
-  S.lerp = function (a, b, t) { return a + (b - a) * t; };
-  S.smooth = function (x) { x = S.clamp01(x); return x * x * (3 - 2 * x); };
-  S.gate = function (v, lo, hi) { return S.clamp01((v - lo) / (hi - lo)); };
+  S.clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  S.clamp01 = v => Math.min(1, Math.max(0, v));
+  S.lerp = (a, b, t) => a + (b - a) * t;
+  S.smooth = x => { x = S.clamp01(x); return x * x * (3 - 2 * x); };
+  S.gate = (v, lo, hi) => S.clamp01((v - lo) / (hi - lo));
   // Exponential approach of `cur` toward `target` with time constant `tau` seconds.
-  S.approach = function (cur, target, dt, tau) { return cur + (target - cur) * Math.min(1, dt / tau); };
+  S.approach = (cur, target, dt, tau) => cur + (target - cur) * Math.min(1, dt / tau);
   S.DEG = Math.PI / 180;
 
-  S.hexToRgb = function (hex) {
-    var v = parseInt(hex.slice(1), 16);
-    return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+  const parse = c => {
+    if (c[0] === '#') {
+      const v = parseInt(c.slice(1), 16);
+      return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+    }
+    const m = c.match(/[\d.]+/g).map(Number);   // rgb(r,g,b)
+    return { r: m[0], g: m[1], b: m[2] };
   };
-  S.rgba = function (hex, a) {
-    var c = S.hexToRgb(hex);
+  S.hexToRgb = parse;
+  S.rgba = (col, a) => {
+    const c = parse(col);
     return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')';
   };
-  S.mix = function (hex1, hex2, t) {
-    var a = S.hexToRgb(hex1), b = S.hexToRgb(hex2);
+  S.mix = (col1, col2, t) => {
+    const a = parse(col1), b = parse(col2);
     t = S.clamp01(t);
     return 'rgb(' + Math.round(S.lerp(a.r, b.r, t)) + ',' + Math.round(S.lerp(a.g, b.g, t)) + ',' + Math.round(S.lerp(a.b, b.b, t)) + ')';
   };
 
   // Colours and typeface come from the theme (theme/theme.js).
   S.COLORS = window.THEME.circulation;
+  S.DATA = window.THEME.data;
+  // Temperature colour of a latitude (degrees, either hemisphere) on the CD scale.
+  S.tempAt = lat => {
+    const C = S.COLORS, a = Math.abs(lat);
+    const pts = [[0, C.tempEquator], [30, C.temp30], [60, C.temp60], [90, C.tempPole]];
+    for (let i = 1; i < pts.length; i++) {
+      if (a <= pts[i][0]) {
+        const f = (a - pts[i - 1][0]) / (pts[i][0] - pts[i - 1][0]);
+        return window.THEME.tempColor(S.lerp(pts[i - 1][1], pts[i][1], f));
+      }
+    }
+    return window.THEME.tempColor(C.tempPole);
+  };
 
   // ============ TEXT ============
-  // Every canvas label goes through here so sizes stay consistent (never below 13px at 100 % zoom)
-  // and every label gets a white halo, which keeps it readable on top of any background.
+  // Every canvas label goes through here so sizes stay consistent (never below 13 px on
+  // screen: the drawing works in CSS pixels and zoom only enlarges it) and every label gets
+  // a white halo, which keeps it readable on top of any background.
   S.FONT = window.THEME.font;
-  // Weights from the old 700/800/900 scale map onto the CD's light/regular/medium.
-  S.font = function (size, weight) { return ((weight || 700) >= 600 ? 500 : 400) + ' ' + size + 'px ' + S.FONT; };
+  // Weights from the old 700/800/900 scale map onto the CD's regular/medium.
+  S.font = (size, weight) => ((weight || 700) >= 600 ? 500 : 400) + ' ' + size + 'px ' + S.FONT;
 
-  S.textWidth = function (ctx, text, size, weight) {
+  S.textWidth = (ctx, text, size, weight) => {
     ctx.save();
     ctx.font = S.font(size, weight || 800);
-    var w = ctx.measureText(text).width;
+    const w = ctx.measureText(text).width;
     ctx.restore();
     return w;
   };
 
-  S.roundRect = function (ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.arcTo(x + w, y, x + w, y + r, r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-    ctx.lineTo(x + r, y + h);
-    ctx.arcTo(x, y + h, x, y + h - r, r);
-    ctx.lineTo(x, y + r);
-    ctx.arcTo(x, y, x + r, y, r);
-    ctx.closePath();
-  };
-
   // o: { size, weight, color, align, baseline, halo (bool), box (bool), alpha }
-  S.label = function (ctx, text, x, y, o) {
-    o = o || {};
-    var size = o.size || 15;
+  S.label = (ctx, text, x, y, o = {}) => {
+    const size = o.size || 15;
     ctx.save();
     if (o.alpha !== undefined) ctx.globalAlpha *= o.alpha;
     ctx.font = S.font(size, o.weight || 800);
     ctx.textAlign = o.align || 'left';
     ctx.textBaseline = o.baseline || 'middle';
     if (o.box) {
-      var w = ctx.measureText(text).width;
-      var bx = ctx.textAlign === 'center' ? x - w / 2 : (ctx.textAlign === 'right' ? x - w : x);
-      var padX = 7, h = size + 10;
-      S.roundRect(ctx, bx - padX, y - h / 2, w + 2 * padX, h, 5);
+      // flat rectangular box (CD: no rounded rectangles)
+      const w = ctx.measureText(text).width;
+      const bx = ctx.textAlign === 'center' ? x - w / 2 : (ctx.textAlign === 'right' ? x - w : x);
+      const padX = 7, h = size + 10;
+      ctx.beginPath();
+      ctx.rect(bx - padX, y - h / 2, w + 2 * padX, h);
       ctx.fillStyle = 'rgba(255,255,255,0.92)';
       ctx.fill();
       ctx.lineWidth = 2;
@@ -92,20 +99,21 @@
   };
 
   // Greedy word wrap to a pixel width.
-  S.wrap = function (ctx, text, maxW, size, weight) {
+  S.wrap = (ctx, text, maxW, size, weight) => {
     ctx.save();
     ctx.font = S.font(size, weight || 700);
-    var words = text.split(' '), lines = [], line = '';
-    for (var i = 0; i < words.length; i++) {
-      var test = line ? line + ' ' + words[i] : words[i];
-      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = words[i]; } else { line = test; }
+    const words = text.split(' '), lines = [];
+    let line = '';
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = word; } else { line = test; }
     }
     if (line) lines.push(line);
     ctx.restore();
     return lines;
   };
 
-  S.arrowHead = function (ctx, x, y, angle, size) {
+  S.arrowHead = (ctx, x, y, angle, size) => {
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x - size * Math.cos(angle - 0.45), y - size * Math.sin(angle - 0.45));
@@ -114,219 +122,169 @@
   };
 
   // ============ ZOOM STAGE ============
-  // Wraps one <div class="stage-card"> containing <div class="stage"><canvas>. The simulation
-  // draws in CSS-pixel "world" coordinates (0..W, 0..H) as if zoom were 100 %; this class puts a
-  // scale+translate transform on top, so text and lines stay vector-crisp at any zoom level.
+  // Wraps one <div class="stage-frame"> with a <canvas>. The simulation draws in CSS-pixel
+  // "world" coordinates (0..W, 0..H) as if zoom were 100 %; this class puts a
+  // scale+translate transform on top, so text and lines stay crisp at any zoom level.
+  // No zoom buttons (style guide 7): Ctrl + mouse wheel, two-finger pinch, drag to pan.
   //
   // sim interface: heightFor(W) -> H, layout(ctx, W, H), update(dt), draw(ctx)
-  var MAX_ZOOM = 6;
+  // A frame with the class "square" takes its size from CSS; otherwise the height
+  // follows heightFor(W), capped to the screen on the desktop.
+  const MAX_ZOOM = 6;
+  const isFull = f => document.fullscreenElement === f || f.classList.contains('is-full');
 
-  function ZoomStage(card, sim) {
-    this.card = card;
-    this.sim = sim;
-    this.stage = card.querySelector('.stage');
-    this.canvas = this.stage.querySelector('canvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.k = 1; this.tx = 0; this.ty = 0;
-    this.W = 0; this.H = 0;
-    this.full = false;
-    this.buildToolbar();
-    this.bindInput();
-  }
-
-  ZoomStage.prototype.buildToolbar = function () {
-    var self = this;
-    var bar = document.createElement('div');
-    bar.className = 'stage-toolbar';
-    bar.innerHTML =
-      '<div class="zoom-group">' +
-        '<button type="button" class="zb" data-z="out" aria-label="Verkleinern">&minus;</button>' +
-        '<span class="zoom-level" aria-live="polite">100&nbsp;%</span>' +
-        '<button type="button" class="zb" data-z="in" aria-label="Vergr&ouml;&szlig;ern">+</button>' +
-        '<button type="button" class="zb zb-text" data-z="reset">Zur&uuml;cksetzen</button>' +
-      '</div>' +
-      '<button type="button" class="zb zb-text zb-full" data-z="full">Vollbild</button>';
-    this.card.appendChild(bar);
-
-    var hint = document.createElement('p');
-    hint.className = 'zoom-hint';
-    hint.innerHTML = '<b>Zoomen:</b> Knöpfe +/&minus;, Strg + Mausrad, Doppelklick oder zwei Finger. <b>Verschieben:</b> im gezoomten Bild ziehen.';
-    this.card.appendChild(hint);
-
-    var flash = document.createElement('div');
-    flash.className = 'wheel-hint';
-    flash.textContent = 'Zum Zoomen: Strg + Mausrad (Mac: ⌘ + Mausrad)';
-    this.stage.appendChild(flash);
-    this.flashEl = flash;
-
-    this.levelEl = bar.querySelector('.zoom-level');
-    this.fullBtn = bar.querySelector('.zb-full');
-
-    bar.addEventListener('click', function (e) {
-      var b = e.target.closest('button');
-      if (!b) return;
-      var z = b.getAttribute('data-z');
-      if (z === 'in') self.zoomAt(1.5, self.W / 2, self.H / 2);
-      else if (z === 'out') self.zoomAt(1 / 1.5, self.W / 2, self.H / 2);
-      else if (z === 'reset') self.resetView();
-      else if (z === 'full') self.setFull(!self.full);
-    });
-  };
-
-  ZoomStage.prototype.setFull = function (on) {
-    this.full = on;
-    this.card.classList.toggle('is-full', on);
-    document.body.classList.toggle('no-scroll', on);
-    this.fullBtn.textContent = on ? 'Vollbild schließen' : 'Vollbild';
-    this.stage.style.height = '';
-    this.resize();
-    this.resetView();
-  };
-
-  ZoomStage.prototype.resetView = function () {
-    this.k = 1; this.tx = 0; this.ty = 0;
-    this.applyZoom();
-  };
-
-  ZoomStage.prototype.applyZoom = function () {
-    this.tx = S.clamp(this.tx, this.W - this.W * this.k, 0);
-    this.ty = S.clamp(this.ty, this.H - this.H * this.k, 0);
-    this.levelEl.textContent = Math.round(this.k * 100) + ' %';
-    // At 100 % a one-finger swipe scrolls the page; once zoomed in it pans the picture instead.
-    this.canvas.style.touchAction = (this.k > 1.001 || this.full) ? 'none' : 'pan-y';
-    this.canvas.style.cursor = this.k > 1.001 ? 'grab' : 'default';
-  };
-
-  ZoomStage.prototype.zoomAt = function (factor, sx, sy) {
-    var nk = S.clamp(this.k * factor, 1, MAX_ZOOM);
-    var wx = (sx - this.tx) / this.k, wy = (sy - this.ty) / this.k;
-    this.k = nk;
-    this.tx = sx - wx * nk;
-    this.ty = sy - wy * nk;
-    this.applyZoom();
-  };
-
-  ZoomStage.prototype.localPos = function (clientX, clientY) {
-    var r = this.canvas.getBoundingClientRect();
-    return { x: clientX - r.left, y: clientY - r.top };
-  };
-
-  ZoomStage.prototype.showFlash = function () {
-    var el = this.flashEl;
-    el.classList.add('show');
-    clearTimeout(this.flashTimer);
-    this.flashTimer = setTimeout(function () { el.classList.remove('show'); }, 1300);
-  };
-
-  ZoomStage.prototype.bindInput = function () {
-    var self = this, c = this.canvas;
-
-    c.addEventListener('wheel', function (e) {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        var p = self.localPos(e.clientX, e.clientY);
-        self.zoomAt(Math.exp(-e.deltaY * 0.0022), p.x, p.y);
-      } else {
-        self.showFlash();
-      }
-    }, { passive: false });
-
-    c.addEventListener('dblclick', function (e) {
-      var p = self.localPos(e.clientX, e.clientY);
-      self.zoomAt(e.shiftKey ? 1 / 1.6 : 1.6, p.x, p.y);
-    });
-
-    // Mouse / pen drag to pan (touch is handled separately below, for pinch).
-    var drag = null;
-    c.addEventListener('pointerdown', function (e) {
-      if (e.pointerType === 'touch' || self.k <= 1.001) return;
-      drag = { x: e.clientX, y: e.clientY, tx: self.tx, ty: self.ty };
-      c.setPointerCapture(e.pointerId);
-      c.style.cursor = 'grabbing';
-    });
-    c.addEventListener('pointermove', function (e) {
-      if (!drag || e.pointerType === 'touch') return;
-      self.tx = drag.tx + (e.clientX - drag.x);
-      self.ty = drag.ty + (e.clientY - drag.y);
-      self.applyZoom();
-    });
-    function endDrag() { if (drag) { drag = null; self.applyZoom(); } }
-    c.addEventListener('pointerup', endDrag);
-    c.addEventListener('pointercancel', endDrag);
-
-    // Touch: two fingers pinch-zoom, one finger pans once zoomed in.
-    var pinch = null, pan = null;
-    function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
-    function mid(t) { return self.localPos((t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2); }
-    c.addEventListener('touchstart', function (e) {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        pan = null;
-        var m = mid(e.touches);
-        pinch = { d: dist(e.touches), k: self.k, wx: (m.x - self.tx) / self.k, wy: (m.y - self.ty) / self.k };
-      } else if (e.touches.length === 1 && self.k > 1.001) {
-        e.preventDefault();
-        pan = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: self.tx, ty: self.ty };
-      }
-    }, { passive: false });
-    c.addEventListener('touchmove', function (e) {
-      if (pinch && e.touches.length === 2) {
-        e.preventDefault();
-        var m = mid(e.touches);
-        var nk = S.clamp(pinch.k * dist(e.touches) / pinch.d, 1, MAX_ZOOM);
-        self.k = nk;
-        self.tx = m.x - pinch.wx * nk;
-        self.ty = m.y - pinch.wy * nk;
-        self.applyZoom();
-      } else if (pan && e.touches.length === 1) {
-        e.preventDefault();
-        self.tx = pan.tx + (e.touches[0].clientX - pan.x);
-        self.ty = pan.ty + (e.touches[0].clientY - pan.y);
-        self.applyZoom();
-      }
-    }, { passive: false });
-    c.addEventListener('touchend', function (e) {
-      if (e.touches.length < 2) pinch = null;
-      if (e.touches.length === 0) pan = null;
-    });
-  };
-
-  ZoomStage.prototype.resize = function () {
-    var W = this.stage.clientWidth;
-    if (!W) return;
-    var H;
-    if (this.full) {
-      H = this.stage.clientHeight;
-    } else {
-      H = Math.round(this.sim.heightFor(W));
-      this.stage.style.height = H + 'px';
+  class ZoomStage {
+    constructor(frame, sim) {
+      this.frame = frame;
+      this.sim = sim;
+      this.canvas = frame.querySelector('canvas');
+      this.ctx = this.canvas.getContext('2d');
+      this.k = 1; this.tx = 0; this.ty = 0;
+      this.W = 0; this.H = 0;
+      this.bindInput();
     }
-    var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-    this.dpr = dpr;
-    this.canvas.width = Math.round(W * dpr);
-    this.canvas.height = Math.round(H * dpr);
-    this.W = W; this.H = H;
-    this.sim.layout(this.ctx, W, H);
-    this.applyZoom();
-  };
 
-  ZoomStage.prototype.frame = function (dt) {
-    this.sim.update(dt);
-    var ctx = this.ctx, d = this.dpr || 1;
-    ctx.setTransform(d, 0, 0, d, 0, 0);
-    ctx.clearRect(0, 0, this.W, this.H);
-    ctx.setTransform(d * this.k, 0, 0, d * this.k, d * this.tx, d * this.ty);
-    this.sim.draw(ctx);
-  };
+    get full() { return isFull(this.frame); }
+
+    resetView() {
+      this.k = 1; this.tx = 0; this.ty = 0;
+      this.applyZoom();
+    }
+
+    applyZoom() {
+      if (this.k < 1.02) { this.k = 1; }
+      this.tx = S.clamp(this.tx, this.W - this.W * this.k, 0);
+      this.ty = S.clamp(this.ty, this.H - this.H * this.k, 0);
+      // At 100 % a one-finger swipe scrolls the page; once zoomed in it pans the picture.
+      const zoomed = this.k > 1.001;
+      this.canvas.style.touchAction = (zoomed || this.full) ? 'none' : 'pan-y';
+      this.canvas.style.cursor = zoomed ? 'grab' : '';
+    }
+
+    zoomAt(factor, sx, sy) {
+      const nk = S.clamp(this.k * factor, 1, MAX_ZOOM);
+      const wx = (sx - this.tx) / this.k, wy = (sy - this.ty) / this.k;
+      this.k = nk;
+      this.tx = sx - wx * nk;
+      this.ty = sy - wy * nk;
+      this.applyZoom();
+    }
+
+    localPos(clientX, clientY) {
+      const r = this.canvas.getBoundingClientRect();
+      return { x: clientX - r.left, y: clientY - r.top };
+    }
+
+    bindInput() {
+      const c = this.canvas;
+
+      c.addEventListener('wheel', e => {
+        if (!(e.ctrlKey || e.metaKey)) return;
+        e.preventDefault();
+        const p = this.localPos(e.clientX, e.clientY);
+        this.zoomAt(Math.exp(-e.deltaY * 0.0022), p.x, p.y);
+      }, { passive: false });
+
+      // Mouse / pen drag to pan (touch is handled separately below, for pinch).
+      let drag = null;
+      c.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'touch' || this.k <= 1.001) return;
+        drag = { x: e.clientX, y: e.clientY, tx: this.tx, ty: this.ty };
+        c.setPointerCapture(e.pointerId);
+        c.style.cursor = 'grabbing';
+      });
+      c.addEventListener('pointermove', e => {
+        if (!drag || e.pointerType === 'touch') return;
+        this.tx = drag.tx + (e.clientX - drag.x);
+        this.ty = drag.ty + (e.clientY - drag.y);
+        this.applyZoom();
+      });
+      const endDrag = () => { if (drag) { drag = null; this.applyZoom(); } };
+      c.addEventListener('pointerup', endDrag);
+      c.addEventListener('pointercancel', endDrag);
+
+      // Touch: two fingers pinch-zoom, one finger pans once zoomed in.
+      let pinch = null, pan = null;
+      const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+      const mid = t => this.localPos((t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2);
+      c.addEventListener('touchstart', e => {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          pan = null;
+          const m = mid(e.touches);
+          pinch = { d: dist(e.touches), k: this.k, wx: (m.x - this.tx) / this.k, wy: (m.y - this.ty) / this.k };
+        } else if (e.touches.length === 1 && this.k > 1.001) {
+          e.preventDefault();
+          pan = { x: e.touches[0].clientX, y: e.touches[0].clientY, tx: this.tx, ty: this.ty };
+        }
+      }, { passive: false });
+      c.addEventListener('touchmove', e => {
+        if (pinch && e.touches.length === 2) {
+          e.preventDefault();
+          const m = mid(e.touches);
+          const nk = S.clamp(pinch.k * dist(e.touches) / pinch.d, 1, MAX_ZOOM);
+          this.k = nk;
+          this.tx = m.x - pinch.wx * nk;
+          this.ty = m.y - pinch.wy * nk;
+          this.applyZoom();
+        } else if (pan && e.touches.length === 1) {
+          e.preventDefault();
+          this.tx = pan.tx + (e.touches[0].clientX - pan.x);
+          this.ty = pan.ty + (e.touches[0].clientY - pan.y);
+          this.applyZoom();
+        }
+      }, { passive: false });
+      c.addEventListener('touchend', e => {
+        if (e.touches.length < 2) pinch = null;
+        if (e.touches.length === 0) pan = null;
+      });
+    }
+
+    resize() {
+      const f = this.frame;
+      const W = f.clientWidth;
+      if (!W) return;
+      let H;
+      if (this.full || f.classList.contains('square')) {
+        H = f.clientHeight;
+      } else {
+        H = Math.round(this.sim.heightFor(W));
+        if (document.documentElement.dataset.view === 'desktop') {
+          const head = document.querySelector('.top');
+          const room = window.innerHeight - (head ? head.offsetHeight : 0) - 36;
+          H = Math.max(360, Math.min(H, room));
+        }
+        f.style.height = H + 'px';
+      }
+      if (!H) return;
+      const sizeChanged = W !== this.W || H !== this.H;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      this.dpr = dpr;
+      this.canvas.width = Math.round(W * dpr);
+      this.canvas.height = Math.round(H * dpr);
+      this.W = W; this.H = H;
+      this.sim.layout(this.ctx, W, H);
+      if (sizeChanged) this.resetView(); else this.applyZoom();
+    }
+
+    frameStep(dt) {
+      this.sim.update(dt);
+      const ctx = this.ctx, d = this.dpr || 1;
+      ctx.setTransform(d, 0, 0, d, 0, 0);
+      ctx.clearRect(0, 0, this.W, this.H);
+      ctx.setTransform(d * this.k, 0, 0, d * this.k, d * this.tx, d * this.ty);
+      this.sim.draw(ctx);
+    }
+  }
 
   S.ZoomStage = ZoomStage;
 
-  // Simple segmented-button helper: buttons inside `el` with data-value; calls onChange(value).
-  S.segmented = function (el, onChange) {
-    el.addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-value]');
+  // Segmented buttons inside `el` with data-value; marks the pressed one and calls onChange(value).
+  S.segmented = (el, onChange) => {
+    el.addEventListener('click', e => {
+      const b = e.target.closest('button[data-value]');
       if (!b) return;
-      el.querySelectorAll('button[data-value]').forEach(function (x) {
+      el.querySelectorAll('button[data-value]').forEach(x => {
         x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
       });
       onChange(b.getAttribute('data-value'));

@@ -1,0 +1,86 @@
+/* Die Windgürtel der Erde – layout only (theme variables from theme/theme.css,
+   shared components from css/kit.css). */
+
+/* coloured words in the texts */
+.c-a { color: var(--beam-a); }
+.c-b { color: var(--beam-b); }
+.c-low { color: var(--low); }
+.c-high { color: var(--high); }
+.c-hadley { color: var(--hadley); }
+.c-ferrel { color: var(--ferrel); }
+.c-polar { color: var(--polar); }
+
+/* ---- the stages: canvas fills the frame; zoom happens inside the canvas ---- */
+.zoom-frame { overflow: hidden; }
+.zoom-frame > canvas { touch-action: pan-y; }
+.part[hidden] { display: none; }
+
+/* ---- instruction line with its "i" button ---- */
+.howto { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 10px; }
+.howto p.text { margin: 0; flex: 1; }
+.howto .info { margin-top: 1px; }
+
+/* ---- controls ---- */
+.lab-post > .range { margin-bottom: 4px; }
+.range output { font-size: 15px; }
+.seg { gap: 0; margin-bottom: 12px; }
+.seg .btn { flex: 1 1 auto; text-transform: none; letter-spacing: 0; font-size: 14px; text-align: left; justify-content: flex-start; }
+.presets .btn { justify-content: center; text-align: center; }
+.btn.throw { width: 100%; margin: 0 0 14px; }
+.btn.throw svg { width: 20px; height: 20px; }
+.speed-value { font-size: 14px; margin: -2px 0 12px; color: var(--ink-muted); min-height: 1.4em; }
+.lab-pre .section-label { margin-top: 12px; }
+.result {
+  margin: 8px 0 4px; padding: 10px 12px; font-size: 15.5px; line-height: 1.5;
+  border-left: 4px solid var(--line); background: var(--stage-bg); min-height: 3.2em;
+}
+
+/* ---- part 3: step navigation, captions, legend ---- */
+.step-nav { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin: 0 0 12px; }
+.step-nav .btn { white-space: nowrap; }
+.step-counter { font-weight: var(--fw-medium); font-size: 13px; letter-spacing: .04em; text-transform: var(--caps); text-align: center; }
+.step-caption { border: var(--line-width) solid var(--line); padding: 12px 14px; margin: 0 0 8px; }
+.step-caption h3 { font-weight: var(--fw-medium); font-size: 18px; line-height: 1.25; margin: 0 0 8px; }
+.step-caption p { font-size: 15.5px; line-height: 1.55; margin: 0 0 8px; }
+.step-caption ul { margin: 0; padding-left: 20px; }
+.step-caption li { font-size: 15px; line-height: 1.5; margin-bottom: 6px; }
+.stepper { margin-top: 4px; }
+
+.legend { margin: 14px 0; }
+.legend h3 { font-weight: var(--fw-medium); font-size: 12px; letter-spacing: .08em; text-transform: var(--caps); margin-bottom: 8px; }
+.legend-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14.5px; line-height: 1.35; }
+.legend-list li { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; }
+.legend .sw { width: 30px; height: 18px; border: var(--line-width) solid var(--line); }
+.legend .sw.hadley { background: color-mix(in srgb, var(--hadley) 45%, var(--stage-bg)); }
+.legend .sw.ferrel { background: color-mix(in srgb, var(--ferrel) 45%, var(--stage-bg)); }
+.legend .sw.polar { background: color-mix(in srgb, var(--polar) 45%, var(--stage-bg)); }
+.legend .pk {
+  width: 30px; height: 30px; border: var(--line-width) solid var(--line); border-radius: 50%; background: var(--paper);
+  display: inline-flex; align-items: center; justify-content: center; font-weight: var(--fw-medium); font-size: 17px;
+}
+.legend .pk.low { color: var(--low); }
+.legend .pk.high { color: var(--high); }
+.legend .arrow-key { width: 30px; height: 20px; display: flex; align-items: center; justify-content: center; background: var(--wind-key); border: var(--line-width) solid var(--line); }
+.legend .arrow-key svg { width: 26px; height: 16px; fill: none; stroke: var(--paper); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.legend .dot-key { width: 30px; height: 18px; border: var(--line-width) solid var(--line); background: radial-gradient(circle, var(--paper) 30%, color-mix(in srgb, var(--hadley) 45%, var(--stage-bg)) 34%); }
+
+/* quiz inside the task list */
+.quiz { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.quiz .btn { min-height: 40px; padding: 6px 10px; font-size: 12.5px; flex: 1 1 auto; }
+.quiz-feedback { font-size: 14px; margin: 4px 0 0; min-height: 1.2em; }
+
+/* ---- next part ---- */
+.next-part .btn { min-height: 54px; font-size: 15px; }
+:root[data-view="mobile"] .next-part .btn { width: 100%; }
+
+/* ---- the poster's small shape changes with the part ---- */
+.poster .l2 { display: block; }
+
+/* first-hint badges sit where they hide the least of each drawing */
+.zoom-frame .hint-badge { transform: none; max-width: calc(100% - 76px); text-align: left; }
+#sun-frame .hint-badge { left: 10px; top: 8px; }
+#cor-frame .hint-badge, #circ-frame .hint-badge { left: 10px; top: auto; bottom: 10px; }
+
+/* phone: only the globe outline behind the poster text, no latitude lines */
+:root[data-view="mobile"] .poster .l3 path { display: none; }
+.info-note > div + p { margin-top: 6px; }

@@ -1,309 +1,278 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Die Windgürtel der Erde</title>
-<meta name="description" content="Drei Experimente, die zeigen, wie die großen Winde der Erde entstehen: ungleiche Erwärmung durch die Sonne, die Corioliskraft und die globale Zirkulation mit Passat, Westwinden und Polaren Ostwinden." />
-<script>
-  (function () {
-    var mode;
-    try {
-      var stored = localStorage.getItem("scapeViewMode");
-      mode = (stored === "mobile" || stored === "desktop") ? stored : null;
-    } catch (e) {}
-    if (!mode) {
-      mode = window.matchMedia("(max-width: 699px)").matches ? "mobile" : "desktop";
-    }
-    document.documentElement.setAttribute("data-view", mode);
-  })();
-</script>
+<meta name="description" content="">
+<!-- Structure only. Design: theme/ · texts: content/texts.de.js · layout: css/ · behaviour: js/ -->
+<script src="js/view.js" data-app="windguertel"></script>
 <link rel="stylesheet" href="theme/theme.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/kit.css">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 
-<div class="wrap">
-  <header class="topbar">
-    <span class="logo" data-brand="logo"></span>
-    <button id="view-toggle" type="button"></button>
-  </header>
-
-  <div class="poster">
-    <div class="poster-grid">
-      <div class="q-orange"></div>
-      <div class="q-yellow"></div>
-      <div class="q-cream"></div>
-      <div class="q-navy"></div>
-    </div>
-    <div class="arch" aria-hidden="true">
-      <svg viewBox="0 0 300 220">
-        <circle cx="150" cy="110" r="82" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="1 14" stroke-linecap="round"/>
-        <circle cx="150" cy="110" r="9" fill="currentColor"/>
-        <path d="M150,26 L173,43 L146,50" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div class="poster-copy">
-      <h1 class="poster-title">Die Windgürtel der Erde</h1>
-      <p class="poster-tagline">In drei Experimenten verstehen</p>
-    </div>
-  </div>
-
-  <main>
-    <p class="lead">
-      Warum weht der Wind in Deutschland meistens von Westen? Warum gibt es am Äquator Regenwald und etwas weiter nördlich die Sahara?
-      Die Antwort steckt in einem riesigen Kreislauf der Luft rund um die Erde. Um ihn zu verstehen, brauchst du nur <b>zwei Zutaten</b> –
-      und genau die schauen wir uns zuerst an.
-    </p>
-
-    <nav class="chapter-nav" id="chapter-nav" role="tablist" aria-label="Die drei Experimente">
-      <button class="chapter-tab" role="tab" data-ch="sonne" aria-controls="ch-sonne">
-        <span class="num">1</span>
-        <span class="t">Die Sonne</span>
-        <span class="s">Warum ist es am Äquator warm und an den Polen kalt?</span>
-      </button>
-      <button class="chapter-tab" role="tab" data-ch="coriolis" aria-controls="ch-coriolis">
-        <span class="num">2</span>
-        <span class="t">Die Erddrehung</span>
-        <span class="s">Was macht die Corioliskraft?</span>
-      </button>
-      <button class="chapter-tab" role="tab" data-ch="zirkulation" aria-controls="ch-zirkulation">
-        <span class="num">3</span>
-        <span class="t">Alles zusammen</span>
-        <span class="s">So entstehen die Windgürtel der Erde</span>
-      </button>
+<header class="top">
+  <span class="logo" data-brand="logo"></span>
+  <div class="top-right">
+    <nav class="nav" data-t-aria="nav.aria">
+      <a href="#sonne" data-part="sonne"><span class="num">1</span><span data-t="nav.sonne"></span></a>
+      <a href="#coriolis" data-part="coriolis"><span class="num">2</span><span data-t="nav.coriolis"></span></a>
+      <a href="#zirkulation" data-part="zirkulation"><span class="num">3</span><span data-t="nav.zirkulation"></span></a>
     </nav>
+    <button type="button" class="view-toggle"></button>
+  </div>
+</header>
 
-    <!-- ================= CHAPTER 1 ================= -->
-    <section class="chapter" id="ch-sonne" data-ch="sonne" role="tabpanel">
-      <p class="kicker">Experiment 1 von 3 · Zutat Nr. 1</p>
-      <h2>Warum ist es am Äquator heiß und an den Polen kalt?</h2>
-      <div class="lab">
-        <div class="lab-setup">
-          <p class="question">
-            Die Sonne scheint auf die ganze Erde. Trotzdem ist es am Äquator das ganze Jahr über heiß, und an den Polen liegt Eis.
-            Dabei ist der Äquator der Sonne kaum näher als der Nordpol. Woran liegt es also?
-          </p>
-          <p class="howto">
-            <b>So geht's:</b> Die beiden Lichtstrahlen <b class="c-red">A</b> und <b class="c-cyan">B</b> sind gleich breit und bringen gleich viel Licht
-            (gelbe Punkte). Strahl <b class="c-red">A</b> trifft den Äquator. Schiebe den Regler, um Strahl <b class="c-cyan">B</b> weiter nach Norden zu schicken.
-            Unten siehst du den Boden in der Nahaufnahme, aufgeteilt in gleich große Kacheln.
-          </p>
-        </div>
-        <div class="lab-stage">
-          <div class="stage-card" id="sun-card">
-            <div class="stage"><canvas aria-label="Simulation: Sonnenlicht trifft am Äquator steil und am Pol flach auf"></canvas></div>
-          </div>
-        </div>
-        <div class="lab-run">
-          <div class="controls">
-            <div class="control">
-              <label for="lat-slider" class="control-label">Wo trifft Strahl B auf? <b id="lat-value" class="c-cyan">50° Nord</b></label>
-              <input type="range" id="lat-slider" min="20" max="70" step="1" value="50">
-              <div class="seg presets" id="sun-presets">
-                <button type="button" data-lat="23">23° – Sahara</button>
-                <button type="button" data-lat="50">50° – Deutschland</button>
-                <button type="button" data-lat="70">70° – Nordkap</button>
-              </div>
-            </div>
-            <p class="live-result" id="sun-result" aria-live="polite"></p>
-          </div>
-        </div>
-      </div>
-
-      <div class="explain">
-        <h3>Was passiert hier?</h3>
-        <ol>
-          <li><b>Am Äquator trifft das Licht fast senkrecht auf.</b> Die ganze Energie des Strahls landet auf einer kleinen Fläche – hier auf 2 Kacheln. Jede Kachel wird kräftig aufgeheizt.</li>
-          <li><b>Weiter im Norden trifft es schräg auf</b>, weil die Erde eine Kugel ist. Dieselbe Menge Licht verteilt sich jetzt auf viel mehr Kacheln. Jede einzelne bekommt weniger ab und bleibt kühler.</li>
-          <li><b>Probier's mit einer Taschenlampe:</b> Leuchte senkrecht auf den Tisch – ein kleiner, heller Fleck. Halte sie schräg – der Fleck wird groß und schwach. Genau das passiert auf der Erde.</li>
-          <li><b>Dazu kommt noch:</b> Schräge Strahlen müssen einen längeren Weg durch die Lufthülle (hellblauer Rand) zurücklegen. Dabei geht zusätzlich Energie verloren.</li>
-        </ol>
-      </div>
-      <div class="merke">
-        <b>Merke:</b> Der Äquator bekommt pro Quadratmeter viel mehr Sonnenenergie als die Pole. Deshalb ist es dort warm und an den Polen kalt.
-        <b>Dieser Temperaturunterschied ist der Motor aller großen Winde.</b> Warme Luft ist leicht und steigt auf, kalte Luft ist schwer und sinkt ab.
-      </div>
-      <button class="next-btn" type="button" data-go="coriolis">Weiter zu Experiment 2: Die Corioliskraft →</button>
-    </section>
-
-    <!-- ================= CHAPTER 2 ================= -->
-    <section class="chapter" id="ch-coriolis" data-ch="coriolis" role="tabpanel">
-      <p class="kicker">Experiment 2 von 3 · Zutat Nr. 2</p>
-      <h2>Was macht die Corioliskraft?</h2>
-      <div class="lab">
-        <div class="lab-setup">
-          <p class="question">
-            Wind ist Luft, die von einem Ort zum anderen strömt. Man könnte meinen, sie strömt einfach geradeaus.
-            Aber die Erde unter ihr dreht sich. Was bedeutet das für den Wind?
-          </p>
-          <p class="howto">
-            <b>So geht's:</b> Stell dir ein Karussell vor. Du stehst in der Mitte und wirfst einem Freund am Rand einen Ball zu.
-            Drücke auf <b>„Ball werfen“</b>. Das erste Bild zeigt den Wurf von oben aus dem Weltall, das zweite so, wie du ihn auf dem Karussell erlebst.
-            Danach kannst du dasselbe mit der <b>Erde</b> ausprobieren.
-          </p>
-        </div>
-        <div class="lab-stage">
-          <div class="stage-card" id="cor-card">
-            <div class="stage"><canvas aria-label="Simulation: Ball auf einem drehenden Karussell, von außen und von innen gesehen"></canvas></div>
-          </div>
-        </div>
-        <div class="lab-run">
-          <div class="controls">
-            <div class="control">
-              <span class="control-label">Was soll sich drehen?</span>
-              <div class="seg" id="cor-mode">
-                <button type="button" data-value="karussell" aria-pressed="true">Ein Karussell</button>
-                <button type="button" data-value="erde" aria-pressed="false">Die Erde (Blick von oben auf den Pol)</button>
-              </div>
-            </div>
-            <button type="button" class="btn-primary" id="cor-throw">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
-              <span id="cor-throw-label">Ball werfen</span>
-            </button>
-            <div class="control" id="cor-earthdir-row" hidden>
-              <span class="control-label">Wohin soll die Luft strömen? (Start bei 30° Nord)</span>
-              <div class="seg" id="cor-earthdir">
-                <button type="button" data-value="aequator" aria-pressed="true">Richtung Äquator</button>
-                <button type="button" data-value="pol" aria-pressed="false">Richtung Pol</button>
-              </div>
-            </div>
-            <div class="control">
-              <label for="cor-speed" class="control-label">Drehgeschwindigkeit: <b id="cor-speed-value">mittel</b></label>
-              <input type="range" id="cor-speed" min="0" max="10" step="1" value="5">
-            </div>
-            <div class="control">
-              <span class="control-label" id="cor-dir-label">Drehrichtung</span>
-              <div class="seg" id="cor-hemi">
-                <button type="button" data-value="1" aria-pressed="true">gegen den Uhrzeigersinn (wie die Nordhalbkugel)</button>
-                <button type="button" data-value="-1" aria-pressed="false">im Uhrzeigersinn (wie die Südhalbkugel)</button>
-              </div>
-            </div>
-            <p class="live-result" id="cor-result" aria-live="polite"></p>
-          </div>
-        </div>
-      </div>
-
-      <div class="explain">
-        <h3>Was passiert hier?</h3>
-        <ol>
-          <li><b>Der Ball fliegt in Wirklichkeit geradeaus.</b> Niemand schubst ihn zur Seite – das siehst du im ersten Bild von oben.</li>
-          <li><b>Aber das Karussell dreht sich weiter,</b> während der Ball fliegt. Wenn er am Rand ankommt, ist dein Freund schon ein Stück weitergefahren.</li>
-          <li><b>Für dich auf dem Karussell sieht es so aus, als würde der Ball abbiegen.</b> Diese scheinbare Kraft nennt man <b>Corioliskraft</b>. Je schneller die Drehung, desto stärker die Ablenkung.</li>
-          <li><b>Die Erde ist ein riesiges Karussell.</b> Von oben auf den Nordpol geschaut, dreht sie sich gegen den Uhrzeigersinn. Wir drehen uns mit – deshalb sehen wir, wie der Wind abgelenkt wird. Wähle oben <b>„Die Erde“</b> und probier es aus.</li>
-          <li><b>Am Pol ist die Ablenkung am stärksten, am Äquator gibt es sie nicht.</b> Dort dreht sich der Boden nicht unter der Luft weg, sondern trägt sie nur mit.</li>
-        </ol>
-      </div>
-      <div class="merke">
-        <b>Merke:</b> Auf der <b>Nordhalbkugel</b> wird alles, was sich über große Strecken bewegt – Wind, Meeresströmungen –, <b>nach rechts</b> abgelenkt.
-        Auf der <b>Südhalbkugel</b> <b>nach links</b>. Luft, die zum Äquator strömt, wird so nach Westen abgelenkt.
-      </div>
-      <button class="next-btn" type="button" data-go="zirkulation">Weiter zu Experiment 3: Alles zusammen →</button>
-    </section>
-
-    <!-- ================= CHAPTER 3 ================= -->
-    <section class="chapter" id="ch-zirkulation" data-ch="zirkulation" role="tabpanel">
-      <p class="kicker">Experiment 3 von 3 · Alles zusammen</p>
-      <h2>Wie entstehen die Windgürtel der Erde?</h2>
-      <div class="lab">
-        <div class="lab-setup">
-          <p class="question">
-            Jetzt kombinieren wir beide Zutaten: <b>ungleiche Erwärmung</b> (Experiment 1) und <b>Erddrehung</b> (Experiment 2).
-            Geh Schritt für Schritt durch und schau zu, wie daraus die großen Luftkreisläufe und Windgürtel entstehen.
-          </p>
-          <ol class="stepper" id="circ-steps" aria-label="Schritte">
-            <li><button type="button">1 · Sonne heizt</button></li>
-            <li><button type="button">2 · Ein Kreislauf</button></li>
-            <li><button type="button">3 · Erde dreht sich</button></li>
-            <li><button type="button">4 · Hoch &amp; Tief</button></li>
-            <li><button type="button">5 · Windgürtel</button></li>
-          </ol>
-        </div>
-        <div class="lab-stage">
-          <div class="stage-card" id="circ-card">
-            <div class="stage"><canvas aria-label="Simulation: Globus mit den drei Zirkulationszellen je Halbkugel und den Bodenwinden"></canvas></div>
-          </div>
-        </div>
-        <div class="lab-run">
-          <div class="step-nav">
-            <button type="button" class="btn" id="circ-prev">← Zurück</button>
-            <span id="circ-counter" class="step-counter">Schritt 1 von 5</span>
-            <button type="button" class="btn btn-go" id="circ-next">Weiter →</button>
-          </div>
-
-          <div id="circ-captions" aria-live="polite">
-            <div class="step-caption">
-              <h3>1 · Die Sonne heizt ungleich</h3>
-              <p>Wie in Experiment 1: Am Äquator wird es warm, an den Polen bleibt es kalt (die Farben auf dem Globus).</p>
-              <p>Die <b>warme Luft am Äquator</b> ist leicht und steigt auf. Am Boden fehlt dann Luft, der Luftdruck sinkt: ein <b class="c-red">Tiefdruckgebiet (T)</b>.
-              Die <b>kalte Luft an den Polen</b> ist schwer und sinkt ab. Dort drückt mehr Luft auf den Boden: ein <b class="c-navy">Hochdruckgebiet (H)</b>.</p>
-            </div>
-            <div class="step-caption" hidden>
-              <h3>2 · Ohne Erddrehung: ein großer Kreislauf</h3>
-              <p>Würde sich die Erde nicht drehen, gäbe es auf jeder Halbkugel <b>nur einen einzigen Kreislauf</b> (rechts am Globus):
-              Die Luft steigt am Äquator auf, strömt hoch oben zum Pol, sinkt dort ab und fließt am Boden zurück zum Äquator.</p>
-              <p>Die weißen Pfeile zeigen den Wind am Boden: überall <b>geradewegs zum Äquator</b>. So stellte man sich das schon vor fast 300 Jahren vor.</p>
-            </div>
-            <div class="step-caption" hidden>
-              <h3>3 · Die Erde dreht sich: aus einem Kreislauf werden drei</h3>
-              <p>Jetzt kommt die <b>Corioliskraft</b> aus Experiment 2 dazu. Die Luft, die hoch oben vom Äquator Richtung Pol strömt, wird immer stärker nach Osten abgelenkt.
-              Bei etwa <b>30° Breite</b> kommt sie kaum noch weiter nach Norden, staut sich und sinkt ab.</p>
-              <p>So zerfällt der große Kreislauf in <b>drei kleinere Zellen</b> pro Halbkugel:
-              die <b class="c-rust">Hadley-Zelle</b> (0–30°), die <b class="c-cyan">Ferrel-Zelle</b> (30–60°, sie dreht andersherum) und die <b class="c-navy">Polarzelle</b> (60–90°).
-              Auch die Bodenwinde (weiße Pfeile) werden jetzt abgelenkt.</p>
-            </div>
-            <div class="step-caption" hidden>
-              <h3>4 · Hoch- und Tiefdruckgürtel</h3>
-              <p>Wo Luft <b>aufsteigt</b>, entsteht am Boden ein <b class="c-red">Tief (T)</b>. Aufsteigende Luft kühlt ab, es bilden sich Wolken und Regen.
-              Wo Luft <b>absinkt</b>, entsteht ein <b class="c-navy">Hoch (H)</b>. Absinkende Luft erwärmt sich, Wolken lösen sich auf, es bleibt trocken.</p>
-              <ul>
-                <li><b class="c-red">T am Äquator</b> („ITCZ“): jeden Tag Gewitter – hier wächst der tropische Regenwald.</li>
-                <li><b class="c-navy">H bei 30°</b>: trockene, absinkende Luft – hier liegen die großen Wüsten wie die Sahara.</li>
-                <li><b class="c-red">T bei 60°</b>: hier bilden sich immer wieder Tiefdruckgebiete – wechselhaftes Wetter wie in Deutschland.</li>
-                <li><b class="c-navy">H am Pol</b>: kalte, schwere, absinkende Luft.</li>
-              </ul>
-            </div>
-            <div class="step-caption" hidden>
-              <h3>5 · Die Windgürtel</h3>
-              <p>Am Boden strömt die Luft immer <b>vom Hoch zum Tief</b>, und die Corioliskraft lenkt sie dabei ab (Nordhalbkugel nach rechts, Südhalbkugel nach links). So entstehen drei Windgürtel je Halbkugel:</p>
-              <ul>
-                <li><b>Passat</b> (0–30°): weht vom Hoch bei 30° zum Äquator und kommt aus Nordosten bzw. Südosten. Seefahrer nutzten ihn früher, um über den Atlantik zu segeln.</li>
-                <li><b>Westwinde</b> (30–60°): wehen vom Hoch bei 30° zum Tief bei 60° und kommen aus Westen. <b>Deutschland liegt in dieser Zone</b> – deshalb kommt unser Wetter meistens vom Atlantik im Westen.</li>
-                <li><b>Polare Ostwinde</b> (60–90°): kalte Luft strömt vom Polarhoch weg und kommt aus Osten.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="legend">
-        <h3>Legende</h3>
-        <div class="legend-grid">
-          <div><span class="sw" style="background:var(--hadley)"></span><span><b>Hadley-Zelle</b> (0–30°)</span></div>
-          <div><span class="sw" style="background:var(--ferrel)"></span><span><b>Ferrel-Zelle</b> (30–60°)</span></div>
-          <div><span class="sw" style="background:var(--polar)"></span><span><b>Polarzelle</b> (60–90°)</span></div>
-          <div><span class="badge c-red">T</span><span><b>Tiefdruck</b>: Luft steigt auf, Wolken und Regen</span></div>
-          <div><span class="badge c-navy">H</span><span><b>Hochdruck</b>: Luft sinkt ab, trocken</span></div>
-          <div><span class="arrow-key" aria-hidden="true">➜</span><span><b>Weiße Pfeile</b>: Wind am Boden</span></div>
-          <div><span class="dot-key" aria-hidden="true"></span><span><b>Weiße Punkte</b>: Luft, die im Kreislauf mitströmt</span></div>
-        </div>
-      </div>
-
-      <div class="merke">
-        <b>Merke:</b> Die Sonne heizt ungleich, warme Luft steigt auf, kalte sinkt ab. Die Erddrehung lenkt die strömende Luft ab und teilt den Kreislauf in drei Zellen.
-        Daraus entstehen die Druckgürtel (Regenwald am Äquator, Wüsten bei 30°) und die Windgürtel: <b>Passat, Westwinde und Polare Ostwinde</b>.
-      </div>
-      <button class="next-btn next-btn-secondary" type="button" data-go="sonne">↺ Noch einmal von vorn: Experiment 1</button>
-    </section>
-  </main>
-
-  <footer class="brand-footer">
-    <span data-brand="claim"></span><br><span data-brand="name"></span>
-  </footer>
+<div class="poster small">
+  <div class="f f1"></div><div class="f f2"></div><div class="f f3"></div>
+  <!-- small solid shape, one per part -->
+  <svg class="l2" data-part-shape="sonne" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="26" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="7" stroke-linecap="round">
+      <line x1="60" y1="6" x2="60" y2="20"/><line x1="60" y1="100" x2="60" y2="114"/>
+      <line x1="6" y1="60" x2="20" y2="60"/><line x1="100" y1="60" x2="114" y2="60"/>
+      <line x1="22" y1="22" x2="32" y2="32"/><line x1="88" y1="88" x2="98" y2="98"/>
+      <line x1="22" y1="98" x2="32" y2="88"/><line x1="88" y1="32" x2="98" y2="22"/>
+    </g>
+  </svg>
+  <svg class="l2" data-part-shape="coriolis" viewBox="0 0 120 120" aria-hidden="true">
+    <circle cx="60" cy="60" r="10" fill="currentColor"/>
+    <path d="M60,60 C72,48 92,50 100,70" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+    <path d="M88,74 L101,72 L105,59" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="5" stroke-dasharray="1 12" stroke-linecap="round"/>
+  </svg>
+  <svg class="l2" data-part-shape="zirkulation" viewBox="0 0 120 120" aria-hidden="true">
+    <path d="M60,8 A52,52 0 0 1 60,112 Z" fill="currentColor"/>
+    <path d="M60,8 A52,52 0 0 0 60,112" fill="none" stroke="currentColor" stroke-width="6"/>
+  </svg>
+  <svg class="l3" viewBox="0 0 400 400" aria-hidden="true">
+    <circle cx="200" cy="200" r="180"/>
+    <path d="M20,200 H380 M44,110 H356 M44,290 H356 M110,44 H290 M110,356 H290"/>
+  </svg>
+  <div class="poster-text">
+    <p class="kicker" id="kicker"></p>
+    <h1 class="headline" data-t-html="poster.headline"></h1>
+    <p class="lead" id="lead"></p>
+  </div>
 </div>
 
+<main class="page">
+
+  <!-- ================= TEIL 1: DIE SONNE ================= -->
+  <section class="part" id="part-sonne" data-part="sonne" hidden>
+    <h2 class="sr-only" data-t="sun.title"></h2>
+    <div class="lab">
+      <div class="lab-pre">
+        <div class="howto">
+          <p class="text" data-t-html="sun.howto"></p>
+          <button type="button" class="info" aria-controls="sun-howto" data-t-aria="common.howtoAria"></button>
+        </div>
+        <div class="info-note" id="sun-howto" hidden><div data-t-html="sun.howtoNote"></div><p data-t="common.zoom"></p></div>
+      </div>
+      <div class="lab-stage">
+        <div class="stage-frame zoom-frame" id="sun-frame">
+          <canvas role="img" data-t-aria="sun.stageAria"></canvas>
+        </div>
+      </div>
+      <div class="lab-post">
+        <div class="range">
+          <label for="lat-slider" data-t="sun.sliderLabel"></label>
+          <input type="range" id="lat-slider" min="20" max="70" step="1" value="50">
+          <output for="lat-slider" id="lat-value" class="c-b"></output>
+        </div>
+        <div class="seg presets" id="sun-presets" role="group" data-t-aria="sun.presetsAria">
+          <button type="button" class="btn" data-lat="23" data-t="sun.presetSahara"></button>
+          <button type="button" class="btn" data-lat="50" data-t="sun.presetHome"></button>
+          <button type="button" class="btn" data-lat="70" data-t="sun.presetNordkap"></button>
+        </div>
+        <p class="result" id="sun-result" aria-live="polite"></p>
+        <p class="hint" data-t="sun.hint"></p>
+
+        <div class="tasks" id="sun-tasks">
+          <h3 data-t="common.tasks"></h3>
+          <ul>
+            <li data-task="half"><span class="box"></span><span data-t="sun.tasks.half"></span></li>
+            <li data-task="trip"><span class="box"></span><span data-t="sun.tasks.trip"></span></li>
+          </ul>
+        </div>
+        <div class="merke locked" data-for="sun-tasks">
+          <h3 data-t="common.merke"></h3>
+          <p data-t="sun.merke"></p>
+          <span class="locked-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topics">
+      <details class="topic"><summary data-t="sun.topics.what.title"></summary><div class="topic-body" data-t-html="sun.topics.what.body"></div></details>
+      <details class="topic"><summary data-t="sun.topics.intro.title"></summary><div class="topic-body" data-t-html="sun.topics.intro.body"></div></details>
+    </div>
+    <div class="next-part"><a class="btn" href="#coriolis" data-t="sun.next"></a></div>
+  </section>
+
+  <!-- ================= TEIL 2: DIE ERDDREHUNG ================= -->
+  <section class="part" id="part-coriolis" data-part="coriolis" hidden>
+    <h2 class="sr-only" data-t="cor.title"></h2>
+    <div class="lab">
+      <div class="lab-pre">
+        <div class="howto">
+          <p class="text" data-t-html="cor.howto"></p>
+          <button type="button" class="info" aria-controls="cor-howto" data-t-aria="common.howtoAria"></button>
+        </div>
+        <div class="info-note" id="cor-howto" hidden><div data-t-html="cor.howtoNote"></div><p data-t="common.zoom"></p></div>
+        <div class="section-label" data-t="cor.modeLabel"></div>
+        <div class="seg" id="cor-mode">
+          <button type="button" class="btn" data-value="karussell" aria-pressed="true" data-t="cor.modeCarousel"></button>
+          <button type="button" class="btn" data-value="erde" aria-pressed="false" data-t="cor.modeEarth"></button>
+        </div>
+      </div>
+      <div class="lab-stage">
+        <div class="stage-frame zoom-frame" id="cor-frame">
+          <canvas role="img" data-t-aria="cor.stageAria"></canvas>
+        </div>
+      </div>
+      <div class="lab-post">
+        <button type="button" class="btn big primary throw" id="cor-throw">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8V4z" fill="currentColor"/></svg>
+          <span id="cor-throw-label" data-t="cor.throwBall"></span>
+        </button>
+        <div id="cor-earthdir-row" hidden>
+          <div class="section-label" data-t="cor.earthDirLabel"></div>
+          <div class="seg" id="cor-earthdir">
+            <button type="button" class="btn" data-value="aequator" aria-pressed="true" data-t="cor.toEquator"></button>
+            <button type="button" class="btn" data-value="pol" aria-pressed="false" data-t="cor.toPole"></button>
+          </div>
+        </div>
+        <div class="range">
+          <label for="cor-speed" data-t="cor.speedLabel"></label>
+          <input type="range" id="cor-speed" min="0" max="10" step="1" value="5">
+        </div>
+        <p class="speed-value" id="cor-speed-value" aria-live="polite"></p>
+        <div class="section-label" id="cor-dir-label" data-t="cor.dirLabel"></div>
+        <div class="seg" id="cor-hemi">
+          <button type="button" class="btn" data-value="1" aria-pressed="true" data-t="cor.ccw"></button>
+          <button type="button" class="btn" data-value="-1" aria-pressed="false" data-t="cor.cw"></button>
+        </div>
+        <p class="result" id="cor-result" aria-live="polite"></p>
+        <p class="hint" data-t="cor.hint"></p>
+
+        <div class="tasks" id="cor-tasks">
+          <h3 data-t="common.tasks"></h3>
+          <ul>
+            <li data-task="miss"><span class="box"></span><span data-t="cor.tasks.miss"></span></li>
+            <li data-task="still"><span class="box"></span><span data-t="cor.tasks.still"></span></li>
+            <li data-task="earth"><span class="box"></span><span data-t="cor.tasks.earth"></span></li>
+          </ul>
+        </div>
+        <div class="merke locked" data-for="cor-tasks">
+          <h3 data-t="common.merke"></h3>
+          <p data-t="cor.merke"></p>
+          <span class="locked-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topics">
+      <details class="topic"><summary data-t="cor.topics.what.title"></summary><div class="topic-body" data-t-html="cor.topics.what.body"></div></details>
+    </div>
+    <div class="next-part"><a class="btn" href="#zirkulation" data-t="cor.next"></a></div>
+  </section>
+
+  <!-- ================= TEIL 3: ALLES ZUSAMMEN ================= -->
+  <section class="part" id="part-zirkulation" data-part="zirkulation" hidden>
+    <h2 class="sr-only" data-t="circ.title"></h2>
+    <div class="lab">
+      <div class="lab-pre">
+        <div class="howto">
+          <p class="text" data-t-html="circ.howto"></p>
+          <button type="button" class="info" aria-controls="circ-howto" data-t-aria="common.howtoAria"></button>
+        </div>
+        <div class="info-note" id="circ-howto" hidden><div data-t-html="circ.howtoNote"></div><p data-t="common.zoom"></p></div>
+        <ol class="stepper" id="circ-steps" data-t-aria="circ.stepsAria">
+          <li><button type="button" data-t="circ.steps.0"></button></li>
+          <li><button type="button" data-t="circ.steps.1"></button></li>
+          <li><button type="button" data-t="circ.steps.2"></button></li>
+          <li><button type="button" data-t="circ.steps.3"></button></li>
+          <li><button type="button" data-t="circ.steps.4"></button></li>
+        </ol>
+      </div>
+      <div class="lab-stage">
+        <div class="stage-frame square fit zoom-frame" id="circ-frame">
+          <canvas role="img" data-t-aria="circ.stageAria"></canvas>
+        </div>
+      </div>
+      <div class="lab-post">
+        <div class="step-nav">
+          <button type="button" class="btn" id="circ-prev" data-t="circ.prev"></button>
+          <span id="circ-counter" class="step-counter"></span>
+          <button type="button" class="btn primary" id="circ-next" data-t="circ.next"></button>
+        </div>
+
+        <div id="circ-captions" aria-live="polite">
+          <div class="step-caption"><h3 data-t="circ.captions.0.title"></h3><div data-t-html="circ.captions.0.body"></div></div>
+          <div class="step-caption" hidden><h3 data-t="circ.captions.1.title"></h3><div data-t-html="circ.captions.1.body"></div></div>
+          <div class="step-caption" hidden><h3 data-t="circ.captions.2.title"></h3><div data-t-html="circ.captions.2.body"></div></div>
+          <div class="step-caption" hidden><h3 data-t="circ.captions.3.title"></h3><div data-t-html="circ.captions.3.body"></div></div>
+          <div class="step-caption" hidden><h3 data-t="circ.captions.4.title"></h3><div data-t-html="circ.captions.4.body"></div></div>
+        </div>
+        <p class="hint" data-t="circ.hint"></p>
+
+        <div class="legend">
+          <h3 data-t="circ.legend.title"></h3>
+          <ul class="legend-list">
+            <li><span class="sw hadley"></span><span data-t-html="circ.legend.hadley"></span></li>
+            <li><span class="sw ferrel"></span><span data-t-html="circ.legend.ferrel"></span></li>
+            <li><span class="sw polar"></span><span data-t-html="circ.legend.polar"></span></li>
+            <li><span class="pk low" data-t="circ.canvas.low"></span><span data-t-html="circ.legend.low"></span></li>
+            <li><span class="pk high" data-t="circ.canvas.high"></span><span data-t-html="circ.legend.high"></span></li>
+            <li><span class="arrow-key" aria-hidden="true"><svg viewBox="0 0 30 18"><path d="M3,9 H20 M14,3 L23,9 L14,15"/></svg></span><span data-t-html="circ.legend.arrows"></span></li>
+            <li><span class="dot-key" aria-hidden="true"></span><span data-t-html="circ.legend.dots"></span></li>
+          </ul>
+        </div>
+
+        <div class="tasks" id="circ-tasks">
+          <h3 data-t="common.tasks"></h3>
+          <ul>
+            <li data-task="steps"><span class="box"></span><span data-t="circ.tasks.steps"></span></li>
+            <li data-task="quiz"><span class="box"></span>
+              <div>
+                <span data-t="circ.tasks.quiz"></span>
+                <div class="quiz" id="circ-quiz" role="group" data-t-aria="circ.tasks.quizAria">
+                  <button type="button" class="btn" data-answer="passat" data-t="circ.tasks.answers.passat"></button>
+                  <button type="button" class="btn" data-answer="west" data-t="circ.tasks.answers.west"></button>
+                  <button type="button" class="btn" data-answer="polar" data-t="circ.tasks.answers.polar"></button>
+                </div>
+                <p class="quiz-feedback" id="circ-quiz-feedback" aria-live="polite"></p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="merke locked" data-for="circ-tasks">
+          <h3 data-t="common.merke"></h3>
+          <p data-t="circ.merke"></p>
+          <span class="locked-note"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topics">
+      <details class="topic"><summary data-t="circ.topics.model.title"></summary><div class="topic-body" data-t-html="circ.topics.model.body"></div></details>
+    </div>
+    <div class="next-part"><a class="btn" href="#sonne" data-t="circ.again"></a></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p class="brand-line" data-brand="line"></p>
+</footer>
+
 <script src="theme/theme.js"></script>
+<script src="content/texts.de.js"></script>
+<script src="js/texts.js"></script>
 <script src="js/brand.js"></script>
+<script src="js/kit.js"></script>
 <script src="js/common.js"></script>
 <script src="js/sim-sun.js"></script>
 <script src="js/sim-coriolis.js"></script>

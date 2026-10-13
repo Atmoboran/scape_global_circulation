@@ -1,101 +1,70 @@
-// Page controller: chapter tabs, the single animation loop (only the visible simulation runs),
-// resizing, and the phone/desktop view toggle.
-(function () {
+// Page controller: the three parts (hash routes #sonne, #coriolis, #zirkulation) with the
+// numbered header buttons, the poster kicker/lead of the current part, the single animation
+// loop (only the visible simulation runs) and resizing.
+(() => {
   'use strict';
-  var S = window.SCAPE;
+  const S = window.SCAPE;
 
-  var stages = {
+  const ORDER = ['sonne', 'coriolis', 'zirkulation'];
+  const stages = {
     sonne: S.initSunSim(),
     coriolis: S.initCoriolisSim(),
     zirkulation: S.initCircSim()
   };
-  var ORDER = ['sonne', 'coriolis', 'zirkulation'];
-  var active = null;
-  var shown = {};
+  const shown = {};
+  let current = null;
+  let active = null;
 
-  var tabs = document.querySelectorAll('.chapter-tab');
-  var chapters = document.querySelectorAll('.chapter');
+  const navLinks = document.querySelectorAll('.top .nav a[data-part]');
+  const parts = document.querySelectorAll('main .part');
+  const shapes = document.querySelectorAll('.poster [data-part-shape]');
+  const kicker = document.getElementById('kicker');
+  const lead = document.getElementById('lead');
 
-  function show(id, scroll) {
-    if (!stages[id]) id = 'sonne';
-    if (active && active !== stages[id] && active.full) active.setFull(false);
-    tabs.forEach(function (t) {
-      var on = t.getAttribute('data-ch') === id;
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.tabIndex = on ? 0 : -1;
+  const show = (id, scroll) => {
+    if (!stages[id]) id = ORDER[0];
+    if (id === current) return;
+    current = id;
+    document.documentElement.dataset.part = id;   // per-part poster colours (theme.css)
+    navLinks.forEach(a => {
+      if (a.dataset.part === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
-    chapters.forEach(function (c) { c.classList.toggle('active', c.getAttribute('data-ch') === id); });
+    parts.forEach(p => { p.hidden = p.dataset.part !== id; });
+    shapes.forEach(s => { s.style.display = s.dataset.partShape === id ? '' : 'none'; });
+    kicker.textContent = window.t('poster.kicker', ORDER.indexOf(id) + 1, ORDER.length, window.t('parts.' + id + '.topic'));
+    lead.textContent = window.t('parts.' + id + '.lead');
+
     active = stages[id];
     active.resize();
     if (!shown[id]) {
       shown[id] = true;
       if (active.onFirstShow) active.onFirstShow();
     }
-    if (history.replaceState) history.replaceState(null, '', '#' + id);
-    if (scroll) document.getElementById('chapter-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+    if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  tabs.forEach(function (t) {
-    t.addEventListener('click', function () { show(t.getAttribute('data-ch'), false); });
-    t.addEventListener('keydown', function (e) {
-      var i = ORDER.indexOf(t.getAttribute('data-ch'));
-      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-        var n = ORDER[(i + (e.key === 'ArrowRight' ? 1 : ORDER.length - 1)) % ORDER.length];
-        show(n, false);
-        document.querySelector('.chapter-tab[data-ch="' + n + '"]').focus();
-      }
-    });
-  });
-  document.querySelectorAll('[data-go]').forEach(function (b) {
-    b.addEventListener('click', function () { show(b.getAttribute('data-go'), true); });
-  });
+  const fromHash = scroll => show((location.hash || '#' + ORDER[0]).slice(1), scroll);
+  window.addEventListener('hashchange', () => fromHash(true));
 
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && active && active.full) active.setFull(false);
-  });
-
-  // ============ VIEW MODE (phone / desktop) ============
-  var VIEW_STORAGE_KEY = 'scapeViewMode';
-  var viewBtn = document.getElementById('view-toggle');
-  function setViewMode(m) {
-    document.documentElement.setAttribute('data-view', m);
-    viewBtn.textContent = m === 'mobile' ? 'Desktop-Ansicht' : 'Handy-Ansicht';
-    viewBtn.setAttribute('aria-label', m === 'mobile' ? 'Zur Desktop-Ansicht wechseln' : 'Zur Handy-Ansicht wechseln');
-  }
-  setViewMode(document.documentElement.getAttribute('data-view') || 'mobile');
-  viewBtn.addEventListener('click', function () {
-    var next = document.documentElement.getAttribute('data-view') === 'mobile' ? 'desktop' : 'mobile';
-    setViewMode(next);
-    try { localStorage.setItem(VIEW_STORAGE_KEY, next); } catch (e) {}
-    if (active) active.resize();
-  });
-  var mql = window.matchMedia('(max-width: 699px)');
-  if (mql.addEventListener) {
-    mql.addEventListener('change', function (e) {
-      var override = false;
-      try { override = localStorage.getItem(VIEW_STORAGE_KEY) !== null; } catch (err) {}
-      if (!override) { setViewMode(e.matches ? 'mobile' : 'desktop'); if (active) active.resize(); }
-    });
-  }
+  // ============ RESIZE ============
+  let resizeTimer = 0;
+  const relayout = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (active) active.resize(); }, 60);
+  };
+  window.addEventListener('resize', relayout);
+  window.addEventListener('scape:viewchange', relayout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (active) active.resize(); });
 
   // ============ LOOP ============
-  var resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () { if (active) active.resize(); }, 60);
-  });
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { if (active) active.resize(); });
-  }
-
-  var last = performance.now();
-  function frame(now) {
-    var dt = Math.min((now - last) / 1000, 0.05);
+  let last = performance.now();
+  const frame = now => {
+    const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
-    if (active) active.frame(dt);
+    if (active) active.frameStep(dt);
     requestAnimationFrame(frame);
-  }
+  };
 
-  show((location.hash || '#sonne').slice(1), false);
+  fromHash(false);
   requestAnimationFrame(frame);
 })();
